@@ -3,42 +3,63 @@ import requests
 import re
 
 username = os.environ["LEETCODE_USERNAME"]
-session = os.environ["LEETCODE_SESSION"]
 
-headers = {
-    "cookie": f"LEETCODE_SESSION={session}",
+HEADERS = {
+    "content-type": "application/json",
     "referer": "https://leetcode.com",
-    "content-type": "application/json"
 }
 
 # 1. Get recent accepted submissions
-query = {
-    "query": """
-    query recentAcSubmissions($username: String!) {
-      recentAcSubmissionList(username: $username) {
-        title
-        titleSlug
-      }
-    }
-    """,
-    "variables": {"username": username}
-}
-
-subs = requests.post(
-    "https://leetcode.com/graphql",
-    json=query,
-    headers=headers
-).json()["data"]["recentAcSubmissionList"]
-
-def clean(name):
-    return re.sub(r'[^a-zA-Z0-9\- ]', '', name).lower().replace(" ", "-")
-
-# 2. For each problem, fetch latest submission detail
-def get_sql(slug):
-    q = {
+def get_recent_submissions():
+    query = {
         "query": """
-        query submissionList($offset: Int!, $limit: Int!, $lastKey: String, $questionSlug: String!) {
-          submissionList(offset: $offset, limit: $limit, lastKey: $lastKey, questionSlug: $questionSlug) {
+        query recentAcSubmissions($username: String!) {
+          recentAcSubmissionList(username: $username) {
+            title
+            titleSlug
+          }
+        }
+        """,
+        "variables": {"username": username}
+    }
+
+    r = requests.post(
+        "https://leetcode.com/graphql",
+        json=query,
+        headers=HEADERS
+    ).json()
+
+    return r["data"]["recentAcSubmissionList"]
+
+
+# 2. Get difficulty (IMPORTANT FIX)
+def get_difficulty(slug):
+    query = {
+        "query": """
+        query questionData($titleSlug: String!) {
+          question(titleSlug: $titleSlug) {
+            difficulty
+          }
+        }
+        """,
+        "variables": {"titleSlug": slug}
+    }
+
+    r = requests.post(
+        "https://leetcode.com/graphql",
+        json=query,
+        headers=HEADERS
+    ).json()
+
+    return r["data"]["question"]["difficulty"].lower()
+
+
+# 3. Get latest accepted submission code (best-effort)
+def get_submission_code(slug):
+    query = {
+        "query": """
+        query submissionList($offset: Int!, $limit: Int!, $questionSlug: String!) {
+          submissionList(offset: $offset, limit: $limit, questionSlug: $questionSlug) {
             submissions {
               id
             }
@@ -54,47 +75,59 @@ def get_sql(slug):
 
     r = requests.post(
         "https://leetcode.com/graphql",
-        json=q,
-        headers=headers
+        json=query,
+        headers=HEADERS
     ).json()
 
     try:
         sub_id = r["data"]["submissionList"]["submissions"][0]["id"]
     except:
-        return "-- SQL not found"
+        return "-- code not found"
 
-    detail = requests.post(
+    detail = {
+        "query": """
+        query submissionDetails($submissionId: Int!) {
+          submissionDetails(submissionId: $submissionId) {
+            code
+          }
+        }
+        """,
+        "variables": {"submissionId": sub_id}
+    }
+
+    r = requests.post(
         "https://leetcode.com/graphql",
-        json={
-            "query": """
-            query submissionDetails($submissionId: Int!) {
-              submissionDetails(submissionId: $submissionId) {
-                code
-              }
-            }
-            """,
-            "variables": {"submissionId": sub_id}
-        },
-        headers=headers
+        json=detail,
+        headers=HEADERS
     ).json()
 
-    return detail["data"]["submissionDetails"]["code"]
+    return r["data"]["submissionDetails"]["code"]
 
-# 3. Save files
+
+# 4. clean filename
+def clean(name):
+    return re.sub(r'[^a-zA-Z0-9\- ]', '', name).lower().replace(" ", "-")
+
+
+# 5. main
+subs = get_recent_submissions()
+
 for s in subs:
     title = s["title"]
     slug = s["titleSlug"]
 
-    sql = get_sql(slug)
+    difficulty = get_difficulty(slug)
 
-    folder = "leetcode/medium"  # default; can be improved later
+    folder = f"leetcode/{difficulty}"
+    os.makedirs(folder, exist_ok=True)
+
+    code = get_submission_code(slug)
 
     filename = f"{folder}/{clean(title)}.sql"
 
-    os.makedirs(folder, exist_ok=True)
-
     with open(filename, "w", encoding="utf-8") as f:
-        f.write(f"-- {title}\n-- https://leetcode.com/problems/{slug}/\n\n")
-        f.write(sql)
+        f.write(f"-- {title}\n")
+        f.write(f"-- https://leetcode.com/problems/{slug}/\n\n")
+        f.write(code)
 
 print("sync complete")
