@@ -13,8 +13,15 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Sync LeetCode
-        uses: joshcai/leetcode-sync-action@v1
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          github-username: ${{ secrets.GH_USERNAME }}
-          leetcode-username: ${{ secrets.LEETCODE_USERNAME }}
+          python-version: "3.11"
+
+      - name: Install requests
+        run: pip install requests
+
+      - name: Run sync script
+        run: python sync.py
+        env:
+          LEETCODE_USERNAME: ${{ secrets.LEETCODE_USERNAME }}
