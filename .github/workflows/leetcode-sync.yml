@@ -16,12 +16,12 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
-      - name: Install requests
+      - name: Install deps
         run: pip install requests
 
-      - name: Run sync script
+      - name: Run sync
         run: python sync.py
         env:
           LEETCODE_USERNAME: ${{ secrets.LEETCODE_USERNAME }}
