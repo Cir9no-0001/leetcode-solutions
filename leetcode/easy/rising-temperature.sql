@@ -1,4 +1,4 @@
 -- Rising Temperature
 -- https://leetcode.com/problems/rising-temperature/
 
--- code not found
+-- SQL code not auto-retrievable from LeetCode API reliably
