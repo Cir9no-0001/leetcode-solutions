@@ -16,6 +16,5 @@ query = {
 }
 
 r = requests.post("https://leetcode.com/graphql", json=query)
-data = r.json()
 
-print(data)
+print(r.json())
