@@ -11,7 +11,6 @@ headers = {
     "content-type": "application/json"
 }
 
-# 1. Get recent accepted submissions
 query = {
     "query": """
     query recentAcSubmissions($username: String!) {
@@ -30,10 +29,42 @@ subs = requests.post(
     headers=headers
 ).json()["data"]["recentAcSubmissionList"]
 
+
 def clean(name):
     return re.sub(r'[^a-zA-Z0-9\- ]', '', name).lower().replace(" ", "-")
 
-# 2. For each problem, fetch latest submission detail
+difficulty_cache = {}
+
+def get_difficulty(slug):
+    if slug in difficulty_cache:
+        return difficulty_cache[slug]
+
+    q = {
+        "query": """
+        query questionData($titleSlug: String!) {
+          question(titleSlug: $titleSlug) {
+            difficulty
+          }
+        }
+        """,
+        "variables": {"titleSlug": slug}
+    }
+
+    try:
+        r = requests.post(
+            "https://leetcode.com/graphql",
+            json=q,
+            headers=headers,
+            timeout=5
+        ).json()
+
+        diff = r["data"]["question"]["difficulty"].lower()
+    except:
+        diff = "unknown"
+
+    difficulty_cache[slug] = diff
+    return diff
+    
 def get_sql(slug):
     q = {
         "query": """
@@ -68,33 +99,4 @@ def get_sql(slug):
         json={
             "query": """
             query submissionDetails($submissionId: Int!) {
-              submissionDetails(submissionId: $submissionId) {
-                code
-              }
-            }
-            """,
-            "variables": {"submissionId": sub_id}
-        },
-        headers=headers
-    ).json()
-
-    return detail["data"]["submissionDetails"]["code"]
-
-# 3. Save files
-for s in subs:
-    title = s["title"]
-    slug = s["titleSlug"]
-
-    sql = get_sql(slug)
-
-    folder = "leetcode/medium"  # default; can be improved later
-
-    filename = f"{folder}/{clean(title)}.sql"
-
-    os.makedirs(folder, exist_ok=True)
-
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write(f"-- {title}\n-- https://leetcode.com/problems/{slug}/\n\n")
-        f.write(sql)
-
-print("sync complete")
+             
