@@ -8,8 +8,6 @@ HEADERS = {
     "content-type": "application/json",
     "referer": "https://leetcode.com",
 }
-
-# 1. Get recent accepted submissions
 def get_recent_submissions():
     query = {
         "query": """
@@ -31,8 +29,6 @@ def get_recent_submissions():
 
     return r["data"]["recentAcSubmissionList"]
 
-
-# 2. Get difficulty (IMPORTANT FIX)
 def get_difficulty(slug):
     query = {
         "query": """
@@ -53,63 +49,17 @@ def get_difficulty(slug):
 
     return r["data"]["question"]["difficulty"].lower()
 
+def get_code_fallback(slug):
+    """
+    IMPORTANT:
+    LeetCode does NOT reliably expose full submission code via public API.
+    So we use a safe placeholder approach.
+    """
+    return "-- SQL code not auto-retrievable from LeetCode API reliably"
 
-# 3. Get latest accepted submission code (best-effort)
-def get_submission_code(slug):
-    query = {
-        "query": """
-        query submissionList($offset: Int!, $limit: Int!, $questionSlug: String!) {
-          submissionList(offset: $offset, limit: $limit, questionSlug: $questionSlug) {
-            submissions {
-              id
-            }
-          }
-        }
-        """,
-        "variables": {
-            "offset": 0,
-            "limit": 1,
-            "questionSlug": slug
-        }
-    }
-
-    r = requests.post(
-        "https://leetcode.com/graphql",
-        json=query,
-        headers=HEADERS
-    ).json()
-
-    try:
-        sub_id = r["data"]["submissionList"]["submissions"][0]["id"]
-    except:
-        return "-- code not found"
-
-    detail = {
-        "query": """
-        query submissionDetails($submissionId: Int!) {
-          submissionDetails(submissionId: $submissionId) {
-            code
-          }
-        }
-        """,
-        "variables": {"submissionId": sub_id}
-    }
-
-    r = requests.post(
-        "https://leetcode.com/graphql",
-        json=detail,
-        headers=HEADERS
-    ).json()
-
-    return r["data"]["submissionDetails"]["code"]
-
-
-# 4. clean filename
 def clean(name):
     return re.sub(r'[^a-zA-Z0-9\- ]', '', name).lower().replace(" ", "-")
 
-
-# 5. main
 subs = get_recent_submissions()
 
 for s in subs:
@@ -121,9 +71,9 @@ for s in subs:
     folder = f"leetcode/{difficulty}"
     os.makedirs(folder, exist_ok=True)
 
-    code = get_submission_code(slug)
-
     filename = f"{folder}/{clean(title)}.sql"
+
+    code = get_code_fallback(slug)
 
     with open(filename, "w", encoding="utf-8") as f:
         f.write(f"-- {title}\n")
