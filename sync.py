@@ -14,10 +14,6 @@ headers = {
     "content-type": "application/json"
 }
 
-
-# -----------------------------
-# safe request wrapper
-# -----------------------------
 def post(query):
     try:
         r = requests.post(
@@ -31,10 +27,6 @@ def post(query):
         print("Request failed:", e)
         return {}
 
-
-# -----------------------------
-# 1. recent submissions (SAFE)
-# -----------------------------
 query = {
     "query": """
     query recentAcSubmissions($username: String!) {
@@ -60,7 +52,6 @@ if not subs:
 
 def clean(name):
     return re.sub(r'[^a-zA-Z0-9\- ]', '', name).lower().replace(" ", "-")
-
 
 difficulty_cache = {}
 
