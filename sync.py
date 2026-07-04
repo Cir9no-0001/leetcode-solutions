@@ -8,8 +8,9 @@ HEADERS = {
     "content-type": "application/json",
     "referer": "https://leetcode.com",
 }
-def get_recent_submissions():
-    query = {
+
+def get_subs():
+    q = {
         "query": """
         query recentAcSubmissions($username: String!) {
           recentAcSubmissionList(username: $username) {
@@ -21,16 +22,14 @@ def get_recent_submissions():
         "variables": {"username": username}
     }
 
-    r = requests.post(
+    return requests.post(
         "https://leetcode.com/graphql",
-        json=query,
+        json=q,
         headers=HEADERS
-    ).json()
-
-    return r["data"]["recentAcSubmissionList"]
+    ).json()["data"]["recentAcSubmissionList"]
 
 def get_difficulty(slug):
-    query = {
+    q = {
         "query": """
         query questionData($titleSlug: String!) {
           question(titleSlug: $titleSlug) {
@@ -43,39 +42,31 @@ def get_difficulty(slug):
 
     r = requests.post(
         "https://leetcode.com/graphql",
-        json=query,
+        json=q,
         headers=HEADERS
     ).json()
 
     return r["data"]["question"]["difficulty"].lower()
 
-def get_code_fallback(slug):
-    """
-    IMPORTANT:
-    LeetCode does NOT reliably expose full submission code via public API.
-    So we use a safe placeholder approach.
-    """
-    return "-- SQL code not auto-retrievable from LeetCode API reliably"
+def clean(s):
+    return re.sub(r'[^a-zA-Z0-9\- ]', '', s).lower().replace(" ", "-")
 
-def clean(name):
-    return re.sub(r'[^a-zA-Z0-9\- ]', '', name).lower().replace(" ", "-")
-
-subs = get_recent_submissions()
+subs = get_subs()
 
 for s in subs:
     title = s["title"]
     slug = s["titleSlug"]
 
     difficulty = get_difficulty(slug)
-
     folder = f"leetcode/{difficulty}"
+
     os.makedirs(folder, exist_ok=True)
 
-    filename = f"{folder}/{clean(title)}.sql"
+    file_path = f"{folder}/{clean(title)}.sql"
 
-    code = get_code_fallback(slug)
+    code = "-- SQL code not available via public LeetCode API"
 
-    with open(filename, "w", encoding="utf-8") as f:
+    with open(file_path, "w", encoding="utf-8") as f:
         f.write(f"-- {title}\n")
         f.write(f"-- https://leetcode.com/problems/{slug}/\n\n")
         f.write(code)
