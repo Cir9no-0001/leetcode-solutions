@@ -24,3 +24,11 @@ jobs:
         run: python sync.py
         env:
           LEETCODE_USERNAME: ${{ secrets.LEETCODE_USERNAME }}
+          
+      - name: Commit and push file
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add leetcode.json
+          git commit -m "update leetcode data" || exit 0
+          git push
