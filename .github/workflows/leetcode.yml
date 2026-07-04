@@ -12,5 +12,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run simple test
-        run: echo "GitHub Actions is working"
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install requests
+        run: pip install requests
+
+      - name: Run sync script
+        run: python sync.py
+        env:
+          LEETCODE_USERNAME: ${{ secrets.LEETCODE_USERNAME }}
