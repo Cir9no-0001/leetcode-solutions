@@ -2,6 +2,9 @@ import os
 import requests
 import re
 import json
+from datetime import datetime, timezone, timedelta
+
+EST = timezone(timedelta(hours=-4))
 
 username = os.environ.get("LEETCODE_USERNAME")
 session = os.environ.get("LEETCODE_SESSION")
@@ -9,12 +12,12 @@ session = os.environ.get("LEETCODE_SESSION")
 if not username or not session:
     raise Exception("Missing LEETCODE_USERNAME or LEETCODE_SESSION")
 
+
 headers = {
     "cookie": f"LEETCODE_SESSION={session}",
     "referer": "https://leetcode.com",
     "content-type": "application/json"
 }
-
 
 def post(query):
     try:
@@ -53,6 +56,7 @@ if not subs:
 
 difficulty_cache = {}
 
+
 def get_difficulty(slug):
     if slug in difficulty_cache:
         return difficulty_cache[slug]
@@ -71,6 +75,7 @@ def get_difficulty(slug):
     r = post(q)
 
     diff = r.get("data", {}).get("question", {}).get("difficulty", "unknown").lower()
+
     difficulty_cache[slug] = diff
     return diff
 
@@ -123,6 +128,7 @@ stats = {
     "easy": 0,
     "medium": 0,
     "hard": 0,
+    "last_updated": datetime.now(EST).isoformat(),
     "files": []
 }
 
@@ -131,7 +137,6 @@ for s in subs:
     slug = s["titleSlug"]
 
     difficulty = get_difficulty(slug)
-
     submission = get_submission(slug)
 
     sql = submission["code"]
@@ -153,12 +158,33 @@ for s in subs:
         f.write("\n")
         f.write(sql)
 
-    # update stats
     stats["total"] += 1
-    stats[difficulty] = stats.get(difficulty, 0) + 1
+    stats[difficulty] += 1
     stats["files"].append(file_path)
 
-with open("leetcode_stats.json", "w") as f:
+with open("leetcode_stats.json", "w", encoding="utf-8") as f:
     json.dump(stats, f, indent=2)
+
+readme = f"""# LeetCode Tracker
+
+Last updated: {stats["last_updated"]}
+
+## Summary
+- Total solved: {stats["total"]}
+- Easy: {stats["easy"]}
+- Medium: {stats["medium"]}
+- Hard: {stats["hard"]}
+
+## Structure
+- `leetcode/easy/`
+- `leetcode/medium/`
+- `leetcode/hard/`
+
+This repo is auto-generated via GitHub Actions.
+"""
+
+with open("README.md", "w", encoding="utf-8") as f:
+    f.write(readme)
+
 
 print("sync complete")
