@@ -7,13 +7,10 @@ from datetime import datetime, timezone, timedelta
 EST = timezone(timedelta(hours=-4))
 
 username = os.environ.get("LEETCODE_USERNAME")
-session = os.environ.get("LEETCODE_SESSION", "")
-if not session:
-    raise Exception("Missing session")
+session = os.environ.get("LEETCODE_SESSION")
 
 if not username or not session:
     raise Exception("Missing LEETCODE_USERNAME or LEETCODE_SESSION")
-
 
 headers = {
     "cookie": f"LEETCODE_SESSION={session}",
@@ -33,10 +30,10 @@ def post(query):
     except Exception:
         return {}
 
-
 def clean(name):
     return re.sub(r'[^a-zA-Z0-9\- ]', '', name).lower().replace(" ", "-")
 
+# Get submissions
 query = {
     "query": """
     query recentAcSubmissions($username: String!) {
@@ -50,14 +47,12 @@ query = {
 }
 
 data = post(query)
-
 subs = data.get("data", {}).get("recentAcSubmissionList", [])
 
 if not subs:
     raise Exception("No submissions returned")
 
 difficulty_cache = {}
-
 
 def get_difficulty(slug):
     if slug in difficulty_cache:
@@ -77,9 +72,9 @@ def get_difficulty(slug):
     r = post(q)
 
     diff = r.get("data", {}).get("question", {}).get("difficulty", "unknown").lower()
-
     difficulty_cache[slug] = diff
     return diff
+
 
 def get_submission(slug):
     q = {
@@ -125,13 +120,24 @@ def get_submission(slug):
         "runtime": d.get("runtime")
     }
 
+
+def read_existing_first_seen(file_path):
+    if not os.path.exists(file_path):
+        return None
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        for line in f:
+            if "first_seen" in line:
+                return line.strip().replace("-- first_seen (EST): ", "")
+    return None
+
+
 stats = {
     "total": 0,
     "easy": 0,
     "medium": 0,
     "hard": 0,
-    "last_updated": datetime.now(EST).isoformat(),
-    "files": []
+    "last_updated": datetime.now(EST).strftime("%Y-%m-%d %H:%M:%S"),
 }
 
 for s in subs:
@@ -141,7 +147,7 @@ for s in subs:
     difficulty = get_difficulty(slug)
     submission = get_submission(slug)
 
-    sql = submission["code"]
+    code = submission["code"]
     runtime = submission["runtime"]
 
     folder = f"leetcode/{difficulty}"
@@ -149,27 +155,47 @@ for s in subs:
 
     file_path = f"{folder}/{clean(title)}.sql"
 
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(f"-- {title}\n")
-        f.write(f"-- https://leetcode.com/problems/{slug}\n")
-        f.write(f"-- difficulty: {difficulty}\n")
+    first_seen = read_existing_first_seen(file_path)
+    now = datetime.now(EST).strftime("%Y-%m-%d %H:%M:%S")
 
-        if runtime:
-            f.write(f"-- runtime: {runtime}\n")
+    # Only set first_seen if file is new
+    if first_seen is None:
+        first_seen = now
 
-        f.write("\n")
-        f.write(sql)
+    content = []
+    content.append(f"-- {title}")
+    content.append(f"-- https://leetcode.com/problems/{slug}")
+    content.append(f"-- difficulty: {difficulty}")
+    content.append(f"-- first_seen (EST): {first_seen}")
+
+    if runtime:
+        content.append(f"-- runtime: {runtime}")
+
+    content.append("")
+    content.append(code)
+
+    new_content = "\n".join(content)
+
+    # Avoid rewriting identical files (prevents useless commits)
+    old_content = ""
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding="utf-8") as f:
+            old_content = f.read()
+
+    if new_content != old_content:
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(new_content)
 
     stats["total"] += 1
     stats[difficulty] += 1
-    stats["files"].append(file_path)
+
 
 with open("leetcode_stats.json", "w", encoding="utf-8") as f:
     json.dump(stats, f, indent=2)
 
 readme = f"""# LeetCode Tracker
 
-Last updated: {stats["last_updated"]}
+Last updated (EST): {stats["last_updated"]}
 
 ## Summary
 - Total solved: {stats["total"]}
@@ -177,16 +203,10 @@ Last updated: {stats["last_updated"]}
 - Medium: {stats["medium"]}
 - Hard: {stats["hard"]}
 
-## Structure
-- `leetcode/easy/`
-- `leetcode/medium/`
-- `leetcode/hard/`
-
-This repo is auto-generated via GitHub Actions.
+Auto-generated via GitHub Actions.
 """
 
 with open("README.md", "w", encoding="utf-8") as f:
     f.write(readme)
-
 
 print("sync complete")
