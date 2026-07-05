@@ -7,7 +7,9 @@ from datetime import datetime, timezone, timedelta
 EST = timezone(timedelta(hours=-4))
 
 username = os.environ.get("LEETCODE_USERNAME")
-session = os.environ.get("LEETCODE_SESSION")
+session = os.environ.get("LEETCODE_SESSION", "")
+if not session:
+    raise Exception("Missing session")
 
 if not username or not session:
     raise Exception("Missing LEETCODE_USERNAME or LEETCODE_SESSION")
