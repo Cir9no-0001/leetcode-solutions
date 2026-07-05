@@ -32,10 +32,6 @@ def post(query):
 def clean(name):
     return re.sub(r'[^a-zA-Z0-9\- ]', '', name).lower().replace(" ", "-")
 
-
-# -------------------------
-# GET SUBMISSIONS
-# -------------------------
 query = {
     "query": """
     query recentAcSubmissions($username: String!) {
@@ -55,10 +51,6 @@ subs = data.get("data", {}).get("recentAcSubmissionList", [])
 if not subs:
     raise Exception("No submissions returned")
 
-
-# -------------------------
-# DIFFICULTY
-# -------------------------
 difficulty_cache = {}
 
 def get_difficulty(slug):
@@ -82,10 +74,6 @@ def get_difficulty(slug):
     difficulty_cache[slug] = diff
     return diff
 
-
-# -------------------------
-# SUBMISSION DATA
-# -------------------------
 def get_submission(slug):
     q = {
         "query": """
@@ -130,10 +118,6 @@ def get_submission(slug):
         "runtime": d.get("runtime")
     }
 
-
-# -------------------------
-# STATS BUILDER (NEW)
-# -------------------------
 stats = {
     "total": 0,
     "easy": 0,
@@ -142,10 +126,6 @@ stats = {
     "files": []
 }
 
-
-# -------------------------
-# MAIN LOOP
-# -------------------------
 for s in subs:
     title = s["title"]
     slug = s["titleSlug"]
@@ -178,10 +158,6 @@ for s in subs:
     stats[difficulty] = stats.get(difficulty, 0) + 1
     stats["files"].append(file_path)
 
-
-# -------------------------
-# WRITE STATS FILE (CRITICAL FIX)
-# -------------------------
 with open("leetcode_stats.json", "w") as f:
     json.dump(stats, f, indent=2)
 
