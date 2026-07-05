@@ -1,6 +1,7 @@
 -- Customers Who Never Order
 -- https://leetcode.com/problems/customers-who-never-order
--- synced: 2026-07-05 02:38:27 UTC
+-- difficulty: easy
+-- runtime: 576
 
 # Write your MySQL query statement below
 Select c.name as Customers

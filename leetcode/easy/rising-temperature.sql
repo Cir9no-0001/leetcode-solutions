@@ -1,6 +1,7 @@
 -- Rising Temperature
 -- https://leetcode.com/problems/rising-temperature
--- synced: 2026-07-05 02:38:26 UTC
+-- difficulty: easy
+-- runtime: 515
 
 Select w.id as Id
 from Weather w

@@ -1,6 +1,7 @@
 -- Game Play Analysis I
 -- https://leetcode.com/problems/game-play-analysis-i
--- synced: 2026-07-05 02:38:26 UTC
+-- difficulty: easy
+-- runtime: 473
 
 SELECT 
     player_id, 
