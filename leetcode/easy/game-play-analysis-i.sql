@@ -1,7 +1,7 @@
 -- Game Play Analysis I
 -- https://leetcode.com/problems/game-play-analysis-i
 -- difficulty: easy
--- runtime: 473
+-- runtime: 473ms
 
 SELECT 
     player_id, 

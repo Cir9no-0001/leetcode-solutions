@@ -1,7 +1,7 @@
 -- Employee Bonus
 -- https://leetcode.com/problems/employee-bonus
 -- difficulty: easy
--- runtime: 919
+-- runtime: 919ms
 
 # Write your MySQL query statement below
 Select e.name, b.bonus

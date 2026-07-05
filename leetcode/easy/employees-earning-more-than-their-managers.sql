@@ -1,7 +1,7 @@
 -- Employees Earning More Than Their Managers
 -- https://leetcode.com/problems/employees-earning-more-than-their-managers
 -- difficulty: easy
--- runtime: 416
+-- runtime: 416ms
 
 SELECT 
     e.name AS Employee

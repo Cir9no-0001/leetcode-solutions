@@ -1,7 +1,7 @@
 -- Delete Duplicate Emails
 -- https://leetcode.com/problems/delete-duplicate-emails
 -- difficulty: easy
--- runtime: 814
+-- runtime: 814ms
 
 # Write your MySQL query statement below
 Delete d

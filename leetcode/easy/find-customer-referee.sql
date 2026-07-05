@@ -1,7 +1,7 @@
 -- Find Customer Referee
 -- https://leetcode.com/problems/find-customer-referee
 -- difficulty: easy
--- runtime: 455
+-- runtime: 455ms
 
 # Write your MySQL query statement below
 Select c.name
