@@ -154,7 +154,7 @@ for s in subs:
         f.write(f"-- difficulty: {difficulty}\n")
 
         if runtime:
-            f.write(f"-- runtime: {runtime}\n")
+            f.write(f"-- runtime: {runtime}ms\n")
 
         f.write("\n")
         f.write(sql)
