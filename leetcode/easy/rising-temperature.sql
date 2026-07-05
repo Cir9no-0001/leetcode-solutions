@@ -1,7 +1,7 @@
 -- Rising Temperature
 -- https://leetcode.com/problems/rising-temperature
 -- difficulty: easy
--- runtime: 515ms
+-- runtime: 515
 
 Select w.id as Id
 from Weather w

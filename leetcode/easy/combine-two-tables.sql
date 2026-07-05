@@ -1,7 +1,7 @@
 -- Combine Two Tables
 -- https://leetcode.com/problems/combine-two-tables
 -- difficulty: easy
--- runtime: 414ms
+-- runtime: 414
 
 # Write your MySQL query statement below
 Select p.firstName, p.lastname, a.city, a.state

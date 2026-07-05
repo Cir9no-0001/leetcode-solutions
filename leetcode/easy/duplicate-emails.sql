@@ -1,7 +1,7 @@
 -- Duplicate Emails
 -- https://leetcode.com/problems/duplicate-emails
 -- difficulty: easy
--- runtime: 383ms
+-- runtime: 383
 
 # Write your MySQL query statement below
 Select p.email as Email

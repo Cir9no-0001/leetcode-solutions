@@ -1,7 +1,7 @@
 -- Customer Placing the Largest Number of Orders
 -- https://leetcode.com/problems/customer-placing-the-largest-number-of-orders
 -- difficulty: easy
--- runtime: 462ms
+-- runtime: 462
 
 # Write your MySQL query statement below
 Select o.customer_number
