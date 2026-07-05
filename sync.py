@@ -1,6 +1,8 @@
 import os
 import requests
 import re
+from collections import defaultdict
+from datetime import datetime
 
 username = os.environ.get("LEETCODE_USERNAME")
 session = os.environ.get("LEETCODE_SESSION")
@@ -53,6 +55,7 @@ if not subs:
 def clean(name):
     return re.sub(r'[^a-zA-Z0-9\- ]', '', name).lower().replace(" ", "-")
 
+
 difficulty_cache = {}
 
 def get_difficulty(slug):
@@ -81,6 +84,7 @@ def get_difficulty(slug):
 
     difficulty_cache[slug] = diff
     return diff
+
 
 def get_sql(slug):
     q = {
@@ -124,11 +128,12 @@ def get_sql(slug):
               .get("code", "-- SQL not found")
     )
 
+
 for s in subs:
     title = s["title"]
     slug = s["titleSlug"]
 
-    difficulty = get_difficulty(slug)
+    difficulty = get_difficulty(slug).lower()
     folder = f"leetcode/{difficulty}"
 
     os.makedirs(folder, exist_ok=True)
@@ -137,9 +142,56 @@ for s in subs:
 
     sql = get_sql(slug)
 
+    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(f"-- {title}\n")
-        f.write(f"-- https://leetcode.com/problems/{slug}/\n\n")
+        f.write(f"-- https://leetcode.com/problems/{slug}\n")
+        f.write(f"-- solved: {timestamp}\n\n")
         f.write(sql)
 
+
+def update_readme():
+    base_dir = "leetcode"
+
+    stats = defaultdict(int)
+    total = 0
+
+    for root, dirs, files in os.walk(base_dir):
+        for file in files:
+            if file.endswith(".sql"):
+                total += 1
+                difficulty = os.path.basename(root).lower()
+
+                if difficulty in ["easy", "medium", "hard"]:
+                    stats[difficulty] += 1
+
+    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+
+    content = f"""# LeetCode Sync
+
+## Stats
+
+- Total Solved: {total}
+- Easy: {stats['easy']}
+- Medium: {stats['medium']}
+- Hard: {stats['hard']}
+
+## Last Updated
+
+{timestamp}
+
+## Structure
+
+leetcode/
+- easy/
+- medium/
+- hard/
+"""
+
+    with open("README.md", "w", encoding="utf-8") as f:
+        f.write(content)
+
+
+update_readme()
 print("sync complete")
