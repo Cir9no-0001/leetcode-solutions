@@ -1,6 +1,7 @@
 import os
 import requests
 import re
+import json
 
 username = os.environ.get("LEETCODE_USERNAME")
 session = os.environ.get("LEETCODE_SESSION")
@@ -24,12 +25,17 @@ def post(query):
             timeout=10
         )
         return r.json()
-    except Exception as e:
-        print("Request failed:", e)
+    except Exception:
         return {}
 
 
-# Get recent accepted submissions
+def clean(name):
+    return re.sub(r'[^a-zA-Z0-9\- ]', '', name).lower().replace(" ", "-")
+
+
+# -------------------------
+# GET SUBMISSIONS
+# -------------------------
 query = {
     "query": """
     query recentAcSubmissions($username: String!) {
@@ -47,15 +53,13 @@ data = post(query)
 subs = data.get("data", {}).get("recentAcSubmissionList", [])
 
 if not subs:
-    raise Exception("No submissions returned from LeetCode API")
+    raise Exception("No submissions returned")
 
 
-def clean(name):
-    return re.sub(r'[^a-zA-Z0-9\- ]', '', name).lower().replace(" ", "-")
-
-
+# -------------------------
+# DIFFICULTY
+# -------------------------
 difficulty_cache = {}
-
 
 def get_difficulty(slug):
     if slug in difficulty_cache:
@@ -74,17 +78,14 @@ def get_difficulty(slug):
 
     r = post(q)
 
-    diff = (
-        r.get("data", {})
-         .get("question", {})
-         .get("difficulty", "unknown")
-         .lower()
-    )
-
+    diff = r.get("data", {}).get("question", {}).get("difficulty", "unknown").lower()
     difficulty_cache[slug] = diff
     return diff
 
 
+# -------------------------
+# SUBMISSION DATA
+# -------------------------
 def get_submission(slug):
     q = {
         "query": """
@@ -108,10 +109,7 @@ def get_submission(slug):
     try:
         sub_id = r["data"]["submissionList"]["submissions"][0]["id"]
     except:
-        return {
-            "code": "-- SQL not found",
-            "runtime": None
-        }
+        return {"code": "", "runtime": None}
 
     detail = post({
         "query": """
@@ -125,28 +123,44 @@ def get_submission(slug):
         "variables": {"submissionId": sub_id}
     })
 
-    data = detail.get("data", {}).get("submissionDetails", {})
+    d = detail.get("data", {}).get("submissionDetails", {})
 
     return {
-        "code": data.get("code", "-- SQL not found"),
-        "runtime": data.get("runtime")
+        "code": d.get("code", ""),
+        "runtime": d.get("runtime")
     }
 
 
+# -------------------------
+# STATS BUILDER (NEW)
+# -------------------------
+stats = {
+    "total": 0,
+    "easy": 0,
+    "medium": 0,
+    "hard": 0,
+    "files": []
+}
+
+
+# -------------------------
+# MAIN LOOP
+# -------------------------
 for s in subs:
     title = s["title"]
     slug = s["titleSlug"]
 
     difficulty = get_difficulty(slug)
 
+    submission = get_submission(slug)
+
+    sql = submission["code"]
+    runtime = submission["runtime"]
+
     folder = f"leetcode/{difficulty}"
     os.makedirs(folder, exist_ok=True)
 
     file_path = f"{folder}/{clean(title)}.sql"
-
-    submission = get_submission(slug)
-    sql = submission["code"]
-    runtime = submission["runtime"]
 
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(f"-- {title}\n")
@@ -154,9 +168,21 @@ for s in subs:
         f.write(f"-- difficulty: {difficulty}\n")
 
         if runtime:
-            f.write(f"-- runtime: {runtime}ms\n")
+            f.write(f"-- runtime: {runtime}\n")
 
         f.write("\n")
         f.write(sql)
+
+    # update stats
+    stats["total"] += 1
+    stats[difficulty] = stats.get(difficulty, 0) + 1
+    stats["files"].append(file_path)
+
+
+# -------------------------
+# WRITE STATS FILE (CRITICAL FIX)
+# -------------------------
+with open("leetcode_stats.json", "w") as f:
+    json.dump(stats, f, indent=2)
 
 print("sync complete")
