@@ -36,6 +36,7 @@ jobs:
 
           git add leetcode/ leetcode_stats.json README.md
 
-          git commit -m "sync leetcode" || echo "no changes"
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
 
+          git commit -m "sync leetcode $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
           git push
