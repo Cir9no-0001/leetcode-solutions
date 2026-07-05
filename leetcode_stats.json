@@ -1,0 +1,18 @@
+{
+  "total": 10,
+  "easy": 10,
+  "medium": 0,
+  "hard": 0,
+  "files": [
+    "leetcode/easy/customer-placing-the-largest-number-of-orders.sql",
+    "leetcode/easy/find-customer-referee.sql",
+    "leetcode/easy/employee-bonus.sql",
+    "leetcode/easy/game-play-analysis-i.sql",
+    "leetcode/easy/rising-temperature.sql",
+    "leetcode/easy/delete-duplicate-emails.sql",
+    "leetcode/easy/customers-who-never-order.sql",
+    "leetcode/easy/duplicate-emails.sql",
+    "leetcode/easy/employees-earning-more-than-their-managers.sql",
+    "leetcode/easy/combine-two-tables.sql"
+  ]
+}
