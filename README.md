@@ -1,19 +1,16 @@
-# LeetCode Sync
+# LeetCode Tracker
 
-## Stats
+Last updated: 2026-07-04T23:20:41.585644-04:00
 
-- Total Solved: 8
-- Easy: 8
+## Summary
+- Total solved: 10
+- Easy: 10
 - Medium: 0
 - Hard: 0
 
-## Last Updated
-
-2026-07-05 02:38:29 UTC
-
 ## Structure
+- `leetcode/easy/`
+- `leetcode/medium/`
+- `leetcode/hard/`
 
-leetcode/
-- easy/
-- medium/
-- hard/
+This repo is auto-generated via GitHub Actions.
