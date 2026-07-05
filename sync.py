@@ -147,7 +147,7 @@ for s in subs:
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(f"-- {title}\n")
         f.write(f"-- https://leetcode.com/problems/{slug}\n")
-        f.write(f"-- solved: {timestamp}\n\n")
+        f.write(f"-- synced: {timestamp}\n\n")
         f.write(sql)
 
 
