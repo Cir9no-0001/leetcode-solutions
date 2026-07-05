@@ -1,8 +1,6 @@
 import os
 import requests
 import re
-from collections import defaultdict
-from datetime import datetime
 
 username = os.environ.get("LEETCODE_USERNAME")
 session = os.environ.get("LEETCODE_SESSION")
@@ -15,6 +13,7 @@ headers = {
     "referer": "https://leetcode.com",
     "content-type": "application/json"
 }
+
 
 def post(query):
     try:
@@ -29,6 +28,8 @@ def post(query):
         print("Request failed:", e)
         return {}
 
+
+# Get recent accepted submissions
 query = {
     "query": """
     query recentAcSubmissions($username: String!) {
@@ -43,10 +44,7 @@ query = {
 
 data = post(query)
 
-subs = (
-    data.get("data", {})
-        .get("recentAcSubmissionList", [])
-)
+subs = data.get("data", {}).get("recentAcSubmissionList", [])
 
 if not subs:
     raise Exception("No submissions returned from LeetCode API")
@@ -57,6 +55,7 @@ def clean(name):
 
 
 difficulty_cache = {}
+
 
 def get_difficulty(slug):
     if slug in difficulty_cache:
@@ -86,7 +85,7 @@ def get_difficulty(slug):
     return diff
 
 
-def get_sql(slug):
+def get_submission(slug):
     q = {
         "query": """
         query submissionList($offset: Int!, $limit: Int!, $questionSlug: String!) {
@@ -109,89 +108,55 @@ def get_sql(slug):
     try:
         sub_id = r["data"]["submissionList"]["submissions"][0]["id"]
     except:
-        return "-- SQL not found"
+        return {
+            "code": "-- SQL not found",
+            "runtime": None
+        }
 
     detail = post({
         "query": """
         query submissionDetails($submissionId: Int!) {
           submissionDetails(submissionId: $submissionId) {
             code
+            runtime
           }
         }
         """,
         "variables": {"submissionId": sub_id}
     })
 
-    return (
-        detail.get("data", {})
-              .get("submissionDetails", {})
-              .get("code", "-- SQL not found")
-    )
+    data = detail.get("data", {}).get("submissionDetails", {})
+
+    return {
+        "code": data.get("code", "-- SQL not found"),
+        "runtime": data.get("runtime")
+    }
 
 
 for s in subs:
     title = s["title"]
     slug = s["titleSlug"]
 
-    difficulty = get_difficulty(slug).lower()
-    folder = f"leetcode/{difficulty}"
+    difficulty = get_difficulty(slug)
 
+    folder = f"leetcode/{difficulty}"
     os.makedirs(folder, exist_ok=True)
 
     file_path = f"{folder}/{clean(title)}.sql"
 
-    sql = get_sql(slug)
-
-    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+    submission = get_submission(slug)
+    sql = submission["code"]
+    runtime = submission["runtime"]
 
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(f"-- {title}\n")
         f.write(f"-- https://leetcode.com/problems/{slug}\n")
-        f.write(f"-- synced: {timestamp}\n\n")
+        f.write(f"-- difficulty: {difficulty}\n")
+
+        if runtime:
+            f.write(f"-- runtime: {runtime}\n")
+
+        f.write("\n")
         f.write(sql)
 
-
-def update_readme():
-    base_dir = "leetcode"
-
-    stats = defaultdict(int)
-    total = 0
-
-    for root, dirs, files in os.walk(base_dir):
-        for file in files:
-            if file.endswith(".sql"):
-                total += 1
-                difficulty = os.path.basename(root).lower()
-
-                if difficulty in ["easy", "medium", "hard"]:
-                    stats[difficulty] += 1
-
-    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
-
-    content = f"""# LeetCode Sync
-
-## Stats
-
-- Total Solved: {total}
-- Easy: {stats['easy']}
-- Medium: {stats['medium']}
-- Hard: {stats['hard']}
-
-## Last Updated
-
-{timestamp}
-
-## Structure
-
-leetcode/
-- easy/
-- medium/
-- hard/
-"""
-
-    with open("README.md", "w", encoding="utf-8") as f:
-        f.write(content)
-
-
-update_readme()
 print("sync complete")
