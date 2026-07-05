@@ -3,7 +3,7 @@
   "easy": 11,
   "medium": 0,
   "hard": 0,
-  "last_updated": "2026-07-04T23:24:07.542820-04:00",
+  "last_updated": "2026-07-04T23:34:48.524275-04:00",
   "files": [
     "leetcode/easy/big-countries.sql",
     "leetcode/easy/customer-placing-the-largest-number-of-orders.sql",
