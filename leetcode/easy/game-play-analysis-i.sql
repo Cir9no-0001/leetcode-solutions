@@ -1,6 +1,6 @@
 -- Game Play Analysis I
 -- https://leetcode.com/problems/game-play-analysis-i
--- synced: 2026-07-05 01:19:13 UTC
+-- synced: 2026-07-05 02:38:26 UTC
 
 SELECT 
     player_id, 

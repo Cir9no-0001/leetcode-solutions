@@ -1,6 +1,6 @@
 -- Duplicate Emails
 -- https://leetcode.com/problems/duplicate-emails
--- synced: 2026-07-05 01:19:15 UTC
+-- synced: 2026-07-05 02:38:28 UTC
 
 # Write your MySQL query statement below
 Select p.email as Email
