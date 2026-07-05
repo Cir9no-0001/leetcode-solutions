@@ -1,6 +1,6 @@
 # LeetCode Tracker
 
-Last updated: 2026-07-04T23:45:02.591257-04:00
+Last updated (EST): 2026-07-04 23:50:07
 
 ## Summary
 - Total solved: 11
@@ -8,9 +8,4 @@ Last updated: 2026-07-04T23:45:02.591257-04:00
 - Medium: 0
 - Hard: 0
 
-## Structure
-- `leetcode/easy/`
-- `leetcode/medium/`
-- `leetcode/hard/`
-
-This repo is auto-generated via GitHub Actions.
+Auto-generated via GitHub Actions.
