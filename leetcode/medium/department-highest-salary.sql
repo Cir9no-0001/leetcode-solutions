@@ -5,7 +5,7 @@
 -- runtime: 667
 
 -- NOTES START
--- write your notes here
+-- Hint: CTE for salary rankings, filter for rank 1 of each dense_rank partition in CTE
 -- NOTES END
 
 with Ranks as (
