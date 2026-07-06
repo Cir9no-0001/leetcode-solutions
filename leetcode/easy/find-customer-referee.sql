@@ -1,7 +1,7 @@
 -- Find Customer Referee
 -- https://leetcode.com/problems/find-customer-referee
 -- difficulty: easy
--- first_seen (EST): 2026-07-04 23:50:07
+-- first_seen: 2026-07-05 20:11:11
 -- runtime: 455
 
 # Write your MySQL query statement below

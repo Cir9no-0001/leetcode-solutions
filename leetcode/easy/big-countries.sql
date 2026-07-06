@@ -1,7 +1,7 @@
 -- Big Countries
 -- https://leetcode.com/problems/big-countries
 -- difficulty: easy
--- first_seen (EST): 2026-07-04 23:50:07
+-- first_seen: 2026-07-05 20:11:11
 -- runtime: 280
 
 # Write your MySQL query statement below

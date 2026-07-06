@@ -1,7 +1,7 @@
 -- Rising Temperature
 -- https://leetcode.com/problems/rising-temperature
 -- difficulty: easy
--- first_seen (EST): 2026-07-04 23:50:08
+-- first_seen: 2026-07-05 20:11:11
 -- runtime: 515
 
 Select w.id as Id

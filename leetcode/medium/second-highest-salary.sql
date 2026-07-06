@@ -1,7 +1,7 @@
 -- Second Highest Salary
 -- https://leetcode.com/problems/second-highest-salary
 -- difficulty: medium
--- first_seen (EST): 2026-07-05 00:13:11
+-- first_seen: 2026-07-05 20:11:11
 -- runtime: 248
 
 Select(
