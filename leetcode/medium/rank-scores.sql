@@ -5,7 +5,7 @@
 -- runtime: 304
 
 -- NOTES START
--- write your notes here
+-- Hint: dense rank
 -- NOTES END
 
 select s.score, dense_rank() over (order by s.score desc) as "rank"
