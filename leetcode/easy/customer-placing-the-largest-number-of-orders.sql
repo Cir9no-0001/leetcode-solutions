@@ -1,7 +1,7 @@
 -- Customer Placing the Largest Number of Orders
 -- https://leetcode.com/problems/customer-placing-the-largest-number-of-orders
 -- difficulty: easy
--- first_seen (local): 2026-07-05 20:36:02 EDT
+-- first_seen: 2026-07-05 20:40:01 EDT
 -- runtime: 462
 
 # Write your MySQL query statement below

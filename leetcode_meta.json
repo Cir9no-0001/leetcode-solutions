@@ -1,0 +1,44 @@
+{
+  "nth-highest-salary": {
+    "first_seen": "2026-07-05 20:39:59 EDT"
+  },
+  "second-highest-salary": {
+    "first_seen": "2026-07-05 20:40:00 EDT"
+  },
+  "classes-with-at-least-5-students": {
+    "first_seen": "2026-07-05 20:40:00 EDT"
+  },
+  "big-countries": {
+    "first_seen": "2026-07-05 20:40:01 EDT"
+  },
+  "customer-placing-the-largest-number-of-orders": {
+    "first_seen": "2026-07-05 20:40:01 EDT"
+  },
+  "find-customer-referee": {
+    "first_seen": "2026-07-05 20:40:02 EDT"
+  },
+  "employee-bonus": {
+    "first_seen": "2026-07-05 20:40:03 EDT"
+  },
+  "game-play-analysis-i": {
+    "first_seen": "2026-07-05 20:40:03 EDT"
+  },
+  "rising-temperature": {
+    "first_seen": "2026-07-05 20:40:05 EDT"
+  },
+  "delete-duplicate-emails": {
+    "first_seen": "2026-07-05 20:40:05 EDT"
+  },
+  "customers-who-never-order": {
+    "first_seen": "2026-07-05 20:40:06 EDT"
+  },
+  "duplicate-emails": {
+    "first_seen": "2026-07-05 20:40:06 EDT"
+  },
+  "employees-earning-more-than-their-managers": {
+    "first_seen": "2026-07-05 20:40:07 EDT"
+  },
+  "combine-two-tables": {
+    "first_seen": "2026-07-05 20:40:08 EDT"
+  }
+}

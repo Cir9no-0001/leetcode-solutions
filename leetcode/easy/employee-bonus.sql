@@ -1,7 +1,7 @@
 -- Employee Bonus
 -- https://leetcode.com/problems/employee-bonus
 -- difficulty: easy
--- first_seen (local): 2026-07-05 20:36:03 EDT
+-- first_seen: 2026-07-05 20:40:03 EDT
 -- runtime: 919
 
 # Write your MySQL query statement below
