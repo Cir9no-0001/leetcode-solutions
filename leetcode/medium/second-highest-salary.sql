@@ -5,7 +5,7 @@
 -- runtime: 248
 
 -- NOTES START
--- write your notes here
+-- Hint: prevent null using a subquery
 -- NOTES END
 
 Select(
