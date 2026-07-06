@@ -38,11 +38,32 @@ def post(query):
 def clean(name):
     return re.sub(r'[^a-zA-Z0-9\- ]', '', name).lower().replace(" ", "-")
 
+
+def extract_notes(content):
+    lines = content.splitlines()
+    in_block = False
+    block = []
+
+    for line in lines:
+        if line.strip() == "-- NOTES START":
+            in_block = True
+
+        if in_block:
+            block.append(line)
+
+        if line.strip() == "-- NOTES END":
+            break
+
+    return block if "-- NOTES START" in lines and "-- NOTES END" in lines else None
+
+
+# Load metadata (first_seen tracking)
 if os.path.exists(META_FILE):
     with open(META_FILE, "r", encoding="utf-8") as f:
         meta = json.load(f)
 else:
     meta = {}
+
 
 query = {
     "query": """
@@ -158,19 +179,24 @@ for s in subs:
     code = submission["code"]
     runtime = submission["runtime"]
 
-    key = slug
-
-    if key not in meta:
-        meta[key] = {
-            "first_seen": datetime.now(LOCAL_TZ).strftime("%Y-%m-%d %H:%M:%S %Z")
-        }
-
-    first_seen = meta[key]["first_seen"]
-
     folder = f"leetcode/{difficulty}"
     os.makedirs(folder, exist_ok=True)
 
     file_path = f"{folder}/{clean(title)}.sql"
+
+    # load existing file for notes preservation
+    old_content = ""
+    old_notes = None
+
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding="utf-8") as f:
+            old_content = f.read()
+            old_notes = extract_notes(old_content)
+
+    first_seen = meta.get(slug, {}).get(
+        "first_seen",
+        datetime.now(LOCAL_TZ).strftime("%Y-%m-%d %H:%M:%S %Z")
+    )
 
     content = [
         f"-- {title}",
@@ -183,14 +209,21 @@ for s in subs:
         content.append(f"-- runtime: {runtime}")
 
     content.append("")
+
+    # notes block
+    if old_notes:
+        content.extend(old_notes)
+    else:
+        content.extend([
+            "-- NOTES START",
+            "-- write your notes here",
+            "-- NOTES END"
+        ])
+
+    content.append("")
     content.append(code)
 
     new_content = "\n".join(content)
-
-    old_content = ""
-    if os.path.exists(file_path):
-        with open(file_path, "r", encoding="utf-8") as f:
-            old_content = f.read()
 
     if new_content != old_content:
         with open(file_path, "w", encoding="utf-8") as f:
@@ -199,15 +232,15 @@ for s in subs:
     stats["total"] += 1
     stats[difficulty] += 1
 
-
+# save metadata
 with open(META_FILE, "w", encoding="utf-8") as f:
     json.dump(meta, f, indent=2)
 
-
+# save stats
 with open("leetcode_stats.json", "w", encoding="utf-8") as f:
     json.dump(stats, f, indent=2)
 
-
+# README
 readme = f"""# LeetCode Tracker
 
 Last updated: {stats["last_updated"]}
