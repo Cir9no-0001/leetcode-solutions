@@ -19,6 +19,9 @@ headers = {
     "content-type": "application/json"
 }
 
+META_FILE = "leetcode_meta.json"
+
+
 def post(query):
     try:
         r = requests.post(
@@ -31,8 +34,15 @@ def post(query):
     except Exception:
         return {}
 
+
 def clean(name):
     return re.sub(r'[^a-zA-Z0-9\- ]', '', name).lower().replace(" ", "-")
+
+if os.path.exists(META_FILE):
+    with open(META_FILE, "r", encoding="utf-8") as f:
+        meta = json.load(f)
+else:
+    meta = {}
 
 query = {
     "query": """
@@ -52,7 +62,9 @@ subs = data.get("data", {}).get("recentAcSubmissionList", [])
 if not subs:
     raise Exception("No submissions returned")
 
+
 difficulty_cache = {}
+
 
 def get_difficulty(slug):
     if slug in difficulty_cache:
@@ -80,6 +92,7 @@ def get_difficulty(slug):
 
     difficulty_cache[slug] = diff
     return diff
+
 
 def get_submission(slug):
     q = {
@@ -125,6 +138,7 @@ def get_submission(slug):
         "runtime": d.get("runtime")
     }
 
+
 stats = {
     "total": 0,
     "easy": 0,
@@ -132,6 +146,7 @@ stats = {
     "hard": 0,
     "last_updated": datetime.now(LOCAL_TZ).strftime("%Y-%m-%d %H:%M:%S %Z"),
 }
+
 
 for s in subs:
     title = s["title"]
@@ -143,18 +158,25 @@ for s in subs:
     code = submission["code"]
     runtime = submission["runtime"]
 
+    key = slug
+
+    if key not in meta:
+        meta[key] = {
+            "first_seen": datetime.now(LOCAL_TZ).strftime("%Y-%m-%d %H:%M:%S %Z")
+        }
+
+    first_seen = meta[key]["first_seen"]
+
     folder = f"leetcode/{difficulty}"
     os.makedirs(folder, exist_ok=True)
 
     file_path = f"{folder}/{clean(title)}.sql"
 
-    now = datetime.now(LOCAL_TZ).strftime("%Y-%m-%d %H:%M:%S %Z")
-
     content = [
         f"-- {title}",
         f"-- https://leetcode.com/problems/{slug}",
         f"-- difficulty: {difficulty}",
-        f"-- first_seen (local): {now}",
+        f"-- first_seen: {first_seen}",
     ]
 
     if runtime:
@@ -177,12 +199,18 @@ for s in subs:
     stats["total"] += 1
     stats[difficulty] += 1
 
+
+with open(META_FILE, "w", encoding="utf-8") as f:
+    json.dump(meta, f, indent=2)
+
+
 with open("leetcode_stats.json", "w", encoding="utf-8") as f:
     json.dump(stats, f, indent=2)
 
+
 readme = f"""# LeetCode Tracker
 
-Last updated (local): {stats["last_updated"]}
+Last updated: {stats["last_updated"]}
 
 ## Summary
 - Total solved: {stats["total"]}
