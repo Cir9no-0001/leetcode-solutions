@@ -2,7 +2,7 @@
 -- https://leetcode.com/problems/department-highest-salary
 -- difficulty: medium
 -- first_seen: 2026-07-05 22:27:45 EDT
--- runtime: 667
+-- runtime: 600
 
 -- NOTES START
 -- Hint: CTE for salary rankings, filter for rank 1 of each dense_rank partition in CTE
