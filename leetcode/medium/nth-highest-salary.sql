@@ -5,7 +5,7 @@
 -- runtime: 437
 
 -- NOTES START
--- write your notes here
+-- Hint: deterministic function, 0-based array-like indexing
 -- NOTES END
 
 CREATE FUNCTION getNthHighestSalary(N INT) 
