@@ -1,7 +1,7 @@
 -- Employees Earning More Than Their Managers
 -- https://leetcode.com/problems/employees-earning-more-than-their-managers
 -- difficulty: easy
--- first_seen: 2026-07-05 20:11:11
+-- first_seen (local): 2026-07-05 20:19:12 EDT
 -- runtime: 416
 
 SELECT 

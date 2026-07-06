@@ -1,7 +1,7 @@
 -- Duplicate Emails
 -- https://leetcode.com/problems/duplicate-emails
 -- difficulty: easy
--- first_seen: 2026-07-05 20:11:11
+-- first_seen (local): 2026-07-05 20:19:11 EDT
 -- runtime: 383
 
 # Write your MySQL query statement below
