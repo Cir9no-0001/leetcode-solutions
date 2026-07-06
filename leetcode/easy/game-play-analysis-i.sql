@@ -1,7 +1,7 @@
 -- Game Play Analysis I
 -- https://leetcode.com/problems/game-play-analysis-i
 -- difficulty: easy
--- first_seen (local): 2026-07-05 20:19:09 EDT
+-- first_seen (local): 2026-07-05 20:36:03 EDT
 -- runtime: 473
 
 SELECT 

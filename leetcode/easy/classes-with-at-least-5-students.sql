@@ -1,7 +1,7 @@
 -- Classes With at Least 5 Students
 -- https://leetcode.com/problems/classes-with-at-least-5-students
 -- difficulty: easy
--- first_seen (local): 2026-07-05 20:19:06 EDT
+-- first_seen (local): 2026-07-05 20:36:01 EDT
 -- runtime: 311
 
 Select c.class
