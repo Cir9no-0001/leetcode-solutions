@@ -18,6 +18,7 @@ headers = {
     "content-type": "application/json"
 }
 
+
 def post(query):
     try:
         r = requests.post(
@@ -30,10 +31,10 @@ def post(query):
     except Exception:
         return {}
 
+
 def clean(name):
     return re.sub(r'[^a-zA-Z0-9\- ]', '', name).lower().replace(" ", "-")
 
-# Get submissions
 query = {
     "query": """
     query recentAcSubmissions($username: String!) {
@@ -52,7 +53,9 @@ subs = data.get("data", {}).get("recentAcSubmissionList", [])
 if not subs:
     raise Exception("No submissions returned")
 
+
 difficulty_cache = {}
+
 
 def get_difficulty(slug):
     if slug in difficulty_cache:
@@ -70,8 +73,8 @@ def get_difficulty(slug):
     }
 
     r = post(q)
-
     diff = r.get("data", {}).get("question", {}).get("difficulty", "unknown").lower()
+
     difficulty_cache[slug] = diff
     return diff
 
@@ -81,9 +84,7 @@ def get_submission(slug):
         "query": """
         query submissionList($offset: Int!, $limit: Int!, $questionSlug: String!) {
           submissionList(offset: $offset, limit: $limit, questionSlug: $questionSlug) {
-            submissions {
-              id
-            }
+            submissions { id }
           }
         }
         """,
@@ -98,7 +99,7 @@ def get_submission(slug):
 
     try:
         sub_id = r["data"]["submissionList"]["submissions"][0]["id"]
-    except:
+    except Exception:
         return {"code": "", "runtime": None}
 
     detail = post({
@@ -121,16 +122,21 @@ def get_submission(slug):
     }
 
 
-def read_existing_first_seen(file_path):
+def load_first_seen(file_path):
     if not os.path.exists(file_path):
         return None
 
     with open(file_path, "r", encoding="utf-8") as f:
         for line in f:
-            if "first_seen" in line:
-                return line.strip().replace("-- first_seen (EST): ", "")
+            if line.startswith("-- first_seen:"):
+                return line.replace("-- first_seen:", "").strip()
     return None
 
+
+def normalize_runtime(rt):
+    if not rt:
+        return None
+    return str(rt).replace(" ", "")
 
 stats = {
     "total": 0,
@@ -148,35 +154,32 @@ for s in subs:
     submission = get_submission(slug)
 
     code = submission["code"]
-    runtime = submission["runtime"]
+    runtime = normalize_runtime(submission["runtime"])
 
     folder = f"leetcode/{difficulty}"
     os.makedirs(folder, exist_ok=True)
 
     file_path = f"{folder}/{clean(title)}.sql"
 
-    first_seen = read_existing_first_seen(file_path)
-    now = datetime.now(EST).strftime("%Y-%m-%d %H:%M:%S")
-
-    # Only set first_seen if file is new
+    first_seen = load_first_seen(file_path)
     if first_seen is None:
-        first_seen = now
+        first_seen = stats["last_updated"]
 
-    content = []
-    content.append(f"-- {title}")
-    content.append(f"-- https://leetcode.com/problems/{slug}")
-    content.append(f"-- difficulty: {difficulty}")
-    content.append(f"-- first_seen (EST): {first_seen}")
+    lines = [
+        f"-- {title}",
+        f"-- https://leetcode.com/problems/{slug}",
+        f"-- difficulty: {difficulty}",
+        f"-- first_seen: {first_seen}"
+    ]
 
     if runtime:
-        content.append(f"-- runtime: {runtime}")
+        lines.append(f"-- runtime: {runtime}")
 
-    content.append("")
-    content.append(code)
+    lines.append("")
+    lines.append(code)
 
-    new_content = "\n".join(content)
+    new_content = "\n".join(lines)
 
-    # Avoid rewriting identical files (prevents useless commits)
     old_content = ""
     if os.path.exists(file_path):
         with open(file_path, "r", encoding="utf-8") as f:
@@ -193,20 +196,21 @@ for s in subs:
 with open("leetcode_stats.json", "w", encoding="utf-8") as f:
     json.dump(stats, f, indent=2)
 
-readme = f"""# LeetCode Tracker
 
-Last updated (EST): {stats["last_updated"]}
+with open("README.md", "w", encoding="utf-8") as f:
+    f.write(
+f"""# LeetCode Tracker
+
+Last updated (EST): {stats['last_updated']}
 
 ## Summary
-- Total solved: {stats["total"]}
-- Easy: {stats["easy"]}
-- Medium: {stats["medium"]}
-- Hard: {stats["hard"]}
+- Total solved: {stats['total']}
+- Easy: {stats['easy']}
+- Medium: {stats['medium']}
+- Hard: {stats['hard']}
 
 Auto-generated via GitHub Actions.
 """
-
-with open("README.md", "w", encoding="utf-8") as f:
-    f.write(readme)
+    )
 
 print("sync complete")
