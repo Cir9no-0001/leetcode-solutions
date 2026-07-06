@@ -4,6 +4,10 @@
 -- first_seen: 2026-07-05 20:40:07 EDT
 -- runtime: 416
 
+-- NOTES START
+-- write your notes here
+-- NOTES END
+
 SELECT 
     e.name AS Employee
 FROM Employee e

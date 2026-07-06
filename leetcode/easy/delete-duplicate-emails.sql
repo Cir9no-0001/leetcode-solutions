@@ -4,6 +4,10 @@
 -- first_seen: 2026-07-05 20:40:05 EDT
 -- runtime: 814
 
+-- NOTES START
+-- write your notes here
+-- NOTES END
+
 # Write your MySQL query statement below
 Delete d
 from Person p

@@ -4,6 +4,10 @@
 -- first_seen: 2026-07-05 22:27:45 EDT
 -- runtime: 667
 
+-- NOTES START
+-- write your notes here
+-- NOTES END
+
 with Ranks as (
     select
         d.name as Department, 

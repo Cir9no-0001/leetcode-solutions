@@ -4,6 +4,10 @@
 -- first_seen: 2026-07-05 20:39:59 EDT
 -- runtime: 437
 
+-- NOTES START
+-- write your notes here
+-- NOTES END
+
 CREATE FUNCTION getNthHighestSalary(N INT) 
 RETURNS INT
 deterministic

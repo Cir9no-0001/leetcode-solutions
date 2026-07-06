@@ -4,6 +4,10 @@
 -- first_seen: 2026-07-05 20:40:03 EDT
 -- runtime: 473
 
+-- NOTES START
+-- write your notes here
+-- NOTES END
+
 SELECT 
     player_id, 
     MIN(event_date) AS first_login
