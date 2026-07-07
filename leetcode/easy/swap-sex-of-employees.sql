@@ -1,7 +1,7 @@
 -- Swap Sex of Employees
 -- https://leetcode.com/problems/swap-sex-of-employees
 -- difficulty: easy
--- first_seen: 2026-07-06 23:33:45 EDT
+-- first_seen: 2026-07-07 18:22:02 EDT
 -- runtime: 247
 
 -- NOTES START
