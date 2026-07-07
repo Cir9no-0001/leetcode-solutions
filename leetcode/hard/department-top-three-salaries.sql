@@ -5,7 +5,7 @@
 -- runtime: 929
 
 -- NOTES START
--- write your notes here
+-- Hint: watch the naming, just another easy CTE problem
 -- NOTES END
 
 with cte_rank as(
