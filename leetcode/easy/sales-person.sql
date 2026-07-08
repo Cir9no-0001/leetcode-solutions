@@ -1,7 +1,7 @@
 -- Sales Person
 -- https://leetcode.com/problems/sales-person
 -- difficulty: easy
--- first_seen: 2026-07-07 18:22:02 EDT
+-- first_seen: 2026-07-07 22:49:41 EDT
 -- runtime: 1346
 
 -- NOTES START
