@@ -5,7 +5,7 @@
 -- runtime: 289
 
 -- NOTES START
--- write your notes here
+-- Hint: use case
 -- NOTES END
 
 select t.x, t.y, t.z, 
@@ -14,4 +14,4 @@ case
     then 'Yes'
     else 'No'
     end as triangle
-from Triangle t
+from Triangle te
