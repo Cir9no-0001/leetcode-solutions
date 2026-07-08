@@ -1,17 +1,10 @@
 -- Triangle Judgement
 -- https://leetcode.com/problems/triangle-judgement
 -- difficulty: easy
+-- language: sql
 -- first_seen: 2026-07-08 03:16:17 EDT
--- runtime: 289
 
 -- NOTES START
 -- Hint: use case
 -- NOTES END
 
-select t.x, t.y, t.z, 
-case
-    when t.x+t.y>t.z and t.x+t.z>t.y and t.z+t.y>t.x 
-    then 'Yes'
-    else 'No'
-    end as triangle
-from Triangle t
