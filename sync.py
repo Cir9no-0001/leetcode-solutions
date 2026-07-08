@@ -5,11 +5,9 @@ import json
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-
 LOCAL_TZ = ZoneInfo("America/Toronto")
 
 META_FILE = "leetcode_meta.json"
-
 
 username = os.environ.get("LEETCODE_USERNAME")
 session = os.environ.get("LEETCODE_SESSION")
@@ -17,13 +15,11 @@ session = os.environ.get("LEETCODE_SESSION")
 if not username or not session:
     raise Exception("Missing LeetCode credentials")
 
-
 headers = {
     "cookie": f"LEETCODE_SESSION={session}",
     "referer": "https://leetcode.com",
     "content-type": "application/json"
 }
-
 
 def now():
     return datetime.now(LOCAL_TZ).strftime(
@@ -45,8 +41,6 @@ def post(query):
         print("Request failed:", e)
         return {}
 
-
-
 def clean(name):
     return (
         re.sub(r"[^a-zA-Z0-9\- ]", "", name)
@@ -57,9 +51,7 @@ def clean(name):
 
 
 def extract_notes(content):
-
     lines = content.splitlines()
-
     start = None
     end = None
 
@@ -74,14 +66,8 @@ def extract_notes(content):
 
     if start is not None and end is not None:
         return lines[start:end + 1]
-
     return None
 
-
-
-# -------------------------
-# Load metadata
-# -------------------------
 
 if os.path.exists(META_FILE):
 
@@ -91,11 +77,6 @@ if os.path.exists(META_FILE):
 else:
     meta = {}
 
-
-
-# -------------------------
-# Get submissions
-# -------------------------
 
 query = {
     "query": """
@@ -121,15 +102,10 @@ subs = (
     .get("recentAcSubmissionList", [])
 )
 
-
 if not subs:
     raise Exception("No submissions returned")
 
-
-
 difficulty_cache = {}
-
-
 
 def get_difficulty(slug):
 
@@ -150,7 +126,6 @@ def get_difficulty(slug):
         }
     })
 
-
     difficulty = (
         response
         .get("data", {})
@@ -163,8 +138,6 @@ def get_difficulty(slug):
     difficulty_cache[slug] = difficulty
 
     return difficulty
-
-
 
 def get_submission(slug):
 
@@ -206,8 +179,6 @@ def get_submission(slug):
             "runtime": None
         }
 
-
-
     detail = post({
         "query": """
         query submissionDetails($submissionId:Int!) {
@@ -222,26 +193,22 @@ def get_submission(slug):
         }
     })
 
-
     result = (
         detail
         .get("data", {})
         .get("submissionDetails", {})
     )
 
-
     return {
         "code": result.get("code"),
         "runtime": result.get("runtime")
     }
 
-
-
 stats = {
-    "total": 0,
     "easy": 0,
     "medium": 0,
     "hard": 0,
+    "total": 0,
     "last_updated": now()
 }
 
@@ -356,16 +323,27 @@ for submission in subs:
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(new_content)
 
+for difficulty in ["easy", "medium", "hard"]:
+    folder = f"leetcode/{difficulty}"
+
+    if os.path.exists(folder):
+        stats[difficulty] = len(
+            [
+                file
+                for file in os.listdir(folder)
+                if file.endswith(".sql")
+            ]
+        )
+    else:
+        stats[difficulty] = 0
 
 
-    stats["total"] += 1
+stats["total"] = (
+    stats["easy"]
+    + stats["medium"]
+    + stats["hard"]
+)
 
-    if difficulty in stats:
-        stats[difficulty] += 1
-
-
-
-# Save metadata
 
 with open(META_FILE, "w", encoding="utf-8") as f:
     json.dump(meta, f, indent=2)
