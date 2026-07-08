@@ -1,3 +1,4 @@
+```yaml
 name: LeetCode Sync
 
 on:
@@ -8,26 +9,34 @@ on:
 permissions:
   contents: write
 
+
 jobs:
   sync:
+
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
+
       - name: Install dependencies
         run: pip install requests
+
 
       - name: Run sync
         run: python sync.py
         env:
           LEETCODE_USERNAME: ${{ secrets.LEETCODE_USERNAME }}
           LEETCODE_SESSION: ${{ secrets.LEETCODE_SESSION }}
+
 
       - name: Commit changes
         run: |
@@ -42,4 +51,6 @@ jobs:
           fi
 
           git commit -m "sync leetcode $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+
           git push
+```
