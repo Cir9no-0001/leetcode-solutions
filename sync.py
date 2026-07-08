@@ -5,6 +5,7 @@ import json
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+
 LOCAL_TZ = ZoneInfo("America/Toronto")
 
 username = os.environ.get("LEETCODE_USERNAME")
@@ -81,68 +82,6 @@ def extract_notes(content):
 
 
 # -------------------------
-# Language handling
-# -------------------------
-
-LANGUAGE_EXTENSIONS = {
-
-    "python": "py",
-    "python3": "py",
-    "python3.10": "py",
-    "python3.11": "py",
-
-    "cpp": "cpp",
-    "c++": "cpp",
-
-    "java": "java",
-
-    "mysql": "sql",
-    "mssql": "sql",
-    "oracle": "sql",
-    "sql": "sql",
-
-    "javascript": "js",
-    "javascriptnode": "js",
-
-    "typescript": "ts",
-
-    "kotlin": "kt",
-
-    "swift": "swift",
-
-    "golang": "go",
-    "go": "go",
-
-    "rust": "rs",
-
-    "c": "c"
-}
-
-
-
-def get_extension(language):
-
-    if not language:
-        return "sql"
-
-
-    cleaned = (
-        language
-        .lower()
-        .replace(" ", "")
-        .replace("-", "")
-        .replace("_", "")
-    )
-
-
-    return LANGUAGE_EXTENSIONS.get(
-        cleaned,
-        "sql"
-    )
-
-
-
-# -------------------------
 # Load metadata
 # -------------------------
 
@@ -157,32 +96,22 @@ else:
 
 
 # -------------------------
-# Get submissions
+# Get recent submissions
 # -------------------------
 
 query = {
-
     "query": """
-
     query recentAcSubmissions($username: String!) {
-
       recentAcSubmissionList(username: $username) {
-
         title
-
         titleSlug
-
       }
-
     }
-
     """,
-
     "variables": {
         "username": username
     }
 }
-
 
 
 data = post(query)
@@ -213,21 +142,13 @@ def get_difficulty(slug):
 
 
     query = {
-
         "query": """
-
         query questionData($titleSlug: String!) {
-
           question(titleSlug: $titleSlug) {
-
             difficulty
-
           }
-
         }
-
         """,
-
         "variables": {
             "titleSlug": slug
         }
@@ -238,12 +159,10 @@ def get_difficulty(slug):
 
 
     difficulty = (
-
         data.get("data", {})
             .get("question", {})
             .get("difficulty", "unknown")
             .lower()
-
     )
 
 
@@ -260,35 +179,20 @@ def get_difficulty(slug):
 def get_submission(slug):
 
     query = {
-
         "query": """
-
         query submissionList($offset: Int!, $limit: Int!, $questionSlug: String!) {
-
           submissionList(offset: $offset, limit: $limit, questionSlug: $questionSlug) {
-
             submissions {
-
               id
-
             }
-
           }
-
         }
-
         """,
-
         "variables": {
-
             "offset": 0,
-
             "limit": 1,
-
             "questionSlug": slug
-
         }
-
     }
 
 
@@ -304,12 +208,11 @@ def get_submission(slug):
             ["id"]
         )
 
-    except:
+    except Exception:
 
         return {
-            "code": "",
-            "runtime": None,
-            "language": "sql"
+            "code": None,
+            "runtime": None
         }
 
 
@@ -317,27 +220,16 @@ def get_submission(slug):
     detail = post({
 
         "query": """
-
         query submissionDetails($submissionId: Int!) {
-
           submissionDetails(submissionId: $submissionId) {
-
             code
-
             runtime
-
-            lang
-
           }
-
         }
-
         """,
 
         "variables": {
-
             "submissionId": int(submission_id)
-
         }
 
     })
@@ -351,11 +243,9 @@ def get_submission(slug):
 
     return {
 
-        "code": result.get("code", ""),
+        "code": result.get("code"),
 
-        "runtime": result.get("runtime"),
-
-        "language": result.get("lang", "sql")
+        "runtime": result.get("runtime")
 
     }
 
@@ -396,14 +286,25 @@ for submission in subs:
     difficulty = get_difficulty(slug)
 
 
-    result = get_submission(slug)
+    submission_data = get_submission(slug)
 
 
-    code = result["code"]
+    code = submission_data["code"]
 
-    runtime = result["runtime"]
+    runtime = submission_data["runtime"]
 
-    language = result["language"]
+
+
+    # IMPORTANT SAFETY CHECK
+    # Prevent empty API responses destroying files
+
+    if not code or not code.strip():
+
+        print(
+            f"Skipping {title}: LeetCode returned no code"
+        )
+
+        continue
 
 
 
@@ -427,11 +328,8 @@ for submission in subs:
 
 
 
-    extension = get_extension(language)
-
-
     file_path = (
-        f"{folder}/{clean(title)}.{extension}"
+        f"{folder}/{clean(title)}.sql"
     )
 
 
@@ -460,8 +358,6 @@ for submission in subs:
         f"-- https://leetcode.com/problems/{slug}",
 
         f"-- difficulty: {difficulty}",
-
-        f"-- language: {language}",
 
         f"-- first_seen: {first_seen}"
 
@@ -523,8 +419,10 @@ for submission in subs:
 
 
 
+
+
 # -------------------------
-# Save
+# Save files
 # -------------------------
 
 with open(META_FILE, "w", encoding="utf-8") as f:
@@ -538,6 +436,10 @@ with open("leetcode_stats.json", "w", encoding="utf-8") as f:
     json.dump(stats, f, indent=2)
 
 
+
+# -------------------------
+# README
+# -------------------------
 
 readme = f"""# LeetCode Tracker
 
@@ -563,6 +465,7 @@ Auto-generated via GitHub Actions.
 with open("README.md", "w", encoding="utf-8") as f:
 
     f.write(readme)
+
 
 
 print("sync complete")
