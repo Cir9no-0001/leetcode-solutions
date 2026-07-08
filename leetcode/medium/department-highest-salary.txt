@@ -1,0 +1,10 @@
+-- Department Highest Salary
+-- https://leetcode.com/problems/department-highest-salary
+-- difficulty: medium
+-- language: unknown
+-- first_seen: 2026-07-05 22:27:45 EDT
+
+-- NOTES START
+-- write your notes here
+-- NOTES END
+

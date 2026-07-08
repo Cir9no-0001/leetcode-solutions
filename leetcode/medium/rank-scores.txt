@@ -1,0 +1,10 @@
+-- Rank Scores
+-- https://leetcode.com/problems/rank-scores
+-- difficulty: medium
+-- language: unknown
+-- first_seen: 2026-07-05 20:53:53 EDT
+
+-- NOTES START
+-- write your notes here
+-- NOTES END
+
