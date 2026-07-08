@@ -32,6 +32,7 @@ def post(query):
             headers=headers,
             timeout=10
         )
+
         return response.json()
 
     except Exception as e:
@@ -50,27 +51,94 @@ def clean(name):
 
 
 def now():
-    return datetime.now(LOCAL_TZ).strftime("%Y-%m-%d %H:%M:%S %Z")
+    return datetime.now(LOCAL_TZ).strftime(
+        "%Y-%m-%d %H:%M:%S %Z"
+    )
 
 
 
 def extract_notes(content):
+
     lines = content.splitlines()
 
     start = None
     end = None
 
     for i, line in enumerate(lines):
+
         if line.strip() == "-- NOTES START":
             start = i
 
         if line.strip() == "-- NOTES END":
             end = i
 
+
     if start is not None and end is not None:
         return lines[start:end + 1]
 
     return None
+
+
+
+# -------------------------
+# Language handling
+# -------------------------
+
+LANGUAGE_EXTENSIONS = {
+
+    "python": "py",
+    "python3": "py",
+    "python3.10": "py",
+    "python3.11": "py",
+
+    "cpp": "cpp",
+    "c++": "cpp",
+
+    "java": "java",
+
+    "mysql": "sql",
+    "mssql": "sql",
+    "oracle": "sql",
+    "sql": "sql",
+
+    "javascript": "js",
+    "javascriptnode": "js",
+
+    "typescript": "ts",
+
+    "kotlin": "kt",
+
+    "swift": "swift",
+
+    "golang": "go",
+    "go": "go",
+
+    "rust": "rs",
+
+    "c": "c"
+}
+
+
+
+def get_extension(language):
+
+    if not language:
+        return "sql"
+
+
+    cleaned = (
+        language
+        .lower()
+        .replace(" ", "")
+        .replace("-", "")
+        .replace("_", "")
+    )
+
+
+    return LANGUAGE_EXTENSIONS.get(
+        cleaned,
+        "sql"
+    )
 
 
 
@@ -93,13 +161,21 @@ else:
 # -------------------------
 
 query = {
+
     "query": """
+
     query recentAcSubmissions($username: String!) {
+
       recentAcSubmissionList(username: $username) {
+
         title
+
         titleSlug
+
       }
+
     }
+
     """,
 
     "variables": {
@@ -108,7 +184,9 @@ query = {
 }
 
 
+
 data = post(query)
+
 
 subs = (
     data.get("data", {})
@@ -122,7 +200,7 @@ if not subs:
 
 
 # -------------------------
-# Difficulty lookup
+# Difficulty
 # -------------------------
 
 difficulty_cache = {}
@@ -135,12 +213,19 @@ def get_difficulty(slug):
 
 
     query = {
+
         "query": """
+
         query questionData($titleSlug: String!) {
+
           question(titleSlug: $titleSlug) {
+
             difficulty
+
           }
+
         }
+
         """,
 
         "variables": {
@@ -153,10 +238,12 @@ def get_difficulty(slug):
 
 
     difficulty = (
+
         data.get("data", {})
             .get("question", {})
             .get("difficulty", "unknown")
             .lower()
+
     )
 
 
@@ -173,21 +260,35 @@ def get_difficulty(slug):
 def get_submission(slug):
 
     query = {
+
         "query": """
+
         query submissionList($offset: Int!, $limit: Int!, $questionSlug: String!) {
+
           submissionList(offset: $offset, limit: $limit, questionSlug: $questionSlug) {
+
             submissions {
+
               id
+
             }
+
           }
+
         }
+
         """,
 
         "variables": {
+
             "offset": 0,
+
             "limit": 1,
+
             "questionSlug": slug
+
         }
+
     }
 
 
@@ -208,7 +309,7 @@ def get_submission(slug):
         return {
             "code": "",
             "runtime": None,
-            "language": "unknown"
+            "language": "sql"
         }
 
 
@@ -216,17 +317,27 @@ def get_submission(slug):
     detail = post({
 
         "query": """
+
         query submissionDetails($submissionId: Int!) {
+
           submissionDetails(submissionId: $submissionId) {
+
             code
+
             runtime
+
             lang
+
           }
+
         }
+
         """,
 
         "variables": {
+
             "submissionId": int(submission_id)
+
         }
 
     })
@@ -244,42 +355,9 @@ def get_submission(slug):
 
         "runtime": result.get("runtime"),
 
-        "language": result.get("lang", "unknown")
+        "language": result.get("lang", "sql")
 
     }
-
-
-
-# -------------------------
-# Language extensions
-# -------------------------
-
-LANGUAGE_EXTENSIONS = {
-
-    "python3": "py",
-    "python": "py",
-
-    "cpp": "cpp",
-    "c++": "cpp",
-
-    "java": "java",
-
-    "mysql": "sql",
-    "mssql": "sql",
-    "oracle": "sql",
-
-    "javascript": "js",
-    "typescript": "ts",
-
-    "kotlin": "kt",
-
-    "swift": "swift",
-
-    "golang": "go",
-
-    "rust": "rs"
-
-}
 
 
 
@@ -304,7 +382,7 @@ stats = {
 
 
 # -------------------------
-# Generate files
+# Create files
 # -------------------------
 
 for submission in subs:
@@ -318,14 +396,14 @@ for submission in subs:
     difficulty = get_difficulty(slug)
 
 
-    data = get_submission(slug)
+    result = get_submission(slug)
 
 
-    code = data["code"]
+    code = result["code"]
 
-    runtime = data["runtime"]
+    runtime = result["runtime"]
 
-    language = data["language"]
+    language = result["language"]
 
 
 
@@ -349,10 +427,7 @@ for submission in subs:
 
 
 
-    extension = LANGUAGE_EXTENSIONS.get(
-        language,
-        "txt"
-    )
+    extension = get_extension(language)
 
 
     file_path = (
@@ -449,7 +524,7 @@ for submission in subs:
 
 
 # -------------------------
-# Save files
+# Save
 # -------------------------
 
 with open(META_FILE, "w", encoding="utf-8") as f:
@@ -488,7 +563,6 @@ Auto-generated via GitHub Actions.
 with open("README.md", "w", encoding="utf-8") as f:
 
     f.write(readme)
-
 
 
 print("sync complete")
