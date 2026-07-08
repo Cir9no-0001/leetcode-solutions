@@ -37,6 +37,12 @@ jobs:
           LEETCODE_SESSION: ${{ secrets.LEETCODE_SESSION }}
 
 
+      - name: Check changes
+        run: |
+          git status
+          git diff --stat
+
+
       - name: Commit changes
         run: |
           git config user.name "github-actions"
