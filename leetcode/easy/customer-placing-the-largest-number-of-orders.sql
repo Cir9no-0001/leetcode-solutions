@@ -1,10 +1,16 @@
 -- Customer Placing the Largest Number of Orders
 -- https://leetcode.com/problems/customer-placing-the-largest-number-of-orders
 -- difficulty: easy
--- language: sql
 -- first_seen: 2026-07-05 20:40:01 EDT
+-- runtime: 462
 
 -- NOTES START
 -- write your notes here
 -- NOTES END
 
+# Write your MySQL query statement below
+Select o.customer_number
+from Orders o
+group by o.customer_number
+order by count(*) desc
+limit 1

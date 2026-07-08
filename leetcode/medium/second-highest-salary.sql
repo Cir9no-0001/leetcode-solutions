@@ -1,10 +1,16 @@
 -- Second Highest Salary
 -- https://leetcode.com/problems/second-highest-salary
 -- difficulty: medium
--- language: sql
 -- first_seen: 2026-07-05 20:40:00 EDT
+-- runtime: 248
 
 -- NOTES START
 -- Hint: prevent null using a subquery
 -- NOTES END
 
+Select(
+    Select distinct(e.salary) 
+    from Employee e
+    order by e.salary desc
+    limit 1 offset 1
+)as SecondHighestSalary
