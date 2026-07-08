@@ -5,7 +5,7 @@
 -- runtime: 685
 
 -- NOTES START
--- write your notes here
+-- Hint: Simulate a full join using union, use and in the where query to filter nulls, probably a better solution though :<
 -- NOTES END
 
 with bogus as(
