@@ -33,9 +33,11 @@ def post(query):
             timeout=10
         )
         return response.json()
+
     except Exception as e:
         print("Request error:", e)
         return {}
+
 
 
 def clean(name):
@@ -46,8 +48,10 @@ def clean(name):
     )
 
 
+
 def now():
     return datetime.now(LOCAL_TZ).strftime("%Y-%m-%d %H:%M:%S %Z")
+
 
 
 def extract_notes(content):
@@ -59,6 +63,7 @@ def extract_notes(content):
     for i, line in enumerate(lines):
         if line.strip() == "-- NOTES START":
             start = i
+
         if line.strip() == "-- NOTES END":
             end = i
 
@@ -68,15 +73,19 @@ def extract_notes(content):
     return None
 
 
+
 # -------------------------
 # Load metadata
 # -------------------------
 
 if os.path.exists(META_FILE):
+
     with open(META_FILE, "r", encoding="utf-8") as f:
         meta = json.load(f)
+
 else:
     meta = {}
+
 
 
 # -------------------------
@@ -92,6 +101,7 @@ query = {
       }
     }
     """,
+
     "variables": {
         "username": username
     }
@@ -105,8 +115,10 @@ subs = (
         .get("recentAcSubmissionList", [])
 )
 
+
 if not subs:
     raise Exception("No submissions returned")
+
 
 
 # -------------------------
@@ -130,6 +142,7 @@ def get_difficulty(slug):
           }
         }
         """,
+
         "variables": {
             "titleSlug": slug
         }
@@ -137,6 +150,7 @@ def get_difficulty(slug):
 
 
     data = post(query)
+
 
     difficulty = (
         data.get("data", {})
@@ -168,6 +182,7 @@ def get_submission(slug):
           }
         }
         """,
+
         "variables": {
             "offset": 0,
             "limit": 1,
@@ -180,6 +195,7 @@ def get_submission(slug):
 
 
     try:
+
         submission_id = (
             data["data"]
             ["submissionList"]
@@ -188,25 +204,31 @@ def get_submission(slug):
         )
 
     except:
+
         return {
             "code": "",
-            "runtime": None
+            "runtime": None,
+            "language": "unknown"
         }
 
 
 
     detail = post({
+
         "query": """
         query submissionDetails($submissionId: Int!) {
           submissionDetails(submissionId: $submissionId) {
             code
             runtime
+            lang
           }
         }
         """,
+
         "variables": {
             "submissionId": int(submission_id)
         }
+
     })
 
 
@@ -217,9 +239,47 @@ def get_submission(slug):
 
 
     return {
+
         "code": result.get("code", ""),
-        "runtime": result.get("runtime")
+
+        "runtime": result.get("runtime"),
+
+        "language": result.get("lang", "unknown")
+
     }
+
+
+
+# -------------------------
+# Language extensions
+# -------------------------
+
+LANGUAGE_EXTENSIONS = {
+
+    "python3": "py",
+    "python": "py",
+
+    "cpp": "cpp",
+    "c++": "cpp",
+
+    "java": "java",
+
+    "mysql": "sql",
+    "mssql": "sql",
+    "oracle": "sql",
+
+    "javascript": "js",
+    "typescript": "ts",
+
+    "kotlin": "kt",
+
+    "swift": "swift",
+
+    "golang": "go",
+
+    "rust": "rs"
+
+}
 
 
 
@@ -228,11 +288,17 @@ def get_submission(slug):
 # -------------------------
 
 stats = {
+
     "total": 0,
+
     "easy": 0,
+
     "medium": 0,
+
     "hard": 0,
+
     "last_updated": now()
+
 }
 
 
@@ -243,22 +309,34 @@ stats = {
 
 for submission in subs:
 
+
     title = submission["title"]
+
     slug = submission["titleSlug"]
+
 
     difficulty = get_difficulty(slug)
 
+
     data = get_submission(slug)
 
+
     code = data["code"]
+
     runtime = data["runtime"]
 
+    language = data["language"]
 
-    # FIRST SEEN FIX
+
+
     if slug not in meta:
+
         meta[slug] = {
+
             "first_seen": now()
+
         }
+
 
 
     first_seen = meta[slug]["first_seen"]
@@ -270,7 +348,17 @@ for submission in subs:
     os.makedirs(folder, exist_ok=True)
 
 
-    file_path = f"{folder}/{clean(title)}.sql"
+
+    extension = LANGUAGE_EXTENSIONS.get(
+        language,
+        "txt"
+    )
+
+
+    file_path = (
+        f"{folder}/{clean(title)}.{extension}"
+    )
+
 
 
     old_content = ""
@@ -278,30 +366,44 @@ for submission in subs:
     old_notes = None
 
 
+
     if os.path.exists(file_path):
 
         with open(file_path, "r", encoding="utf-8") as f:
+
             old_content = f.read()
+
 
         old_notes = extract_notes(old_content)
 
 
 
     content = [
+
         f"-- {title}",
+
         f"-- https://leetcode.com/problems/{slug}",
+
         f"-- difficulty: {difficulty}",
-        f"-- first_seen: {first_seen}",
+
+        f"-- language: {language}",
+
+        f"-- first_seen: {first_seen}"
+
     ]
 
 
+
     if runtime:
+
         content.append(
             f"-- runtime: {runtime}"
         )
 
 
+
     content.append("")
+
 
 
     if old_notes:
@@ -311,14 +413,21 @@ for submission in subs:
     else:
 
         content.extend([
+
             "-- NOTES START",
+
             "-- write your notes here",
+
             "-- NOTES END"
+
         ])
 
 
+
     content.append("")
+
     content.append(code)
+
 
 
     new_content = "\n".join(content)
@@ -328,32 +437,32 @@ for submission in subs:
     if new_content != old_content:
 
         with open(file_path, "w", encoding="utf-8") as f:
+
             f.write(new_content)
 
 
 
     stats["total"] += 1
+
     stats[difficulty] += 1
 
 
 
 # -------------------------
-# Save metadata
+# Save files
 # -------------------------
 
 with open(META_FILE, "w", encoding="utf-8") as f:
+
     json.dump(meta, f, indent=2)
 
 
 
 with open("leetcode_stats.json", "w", encoding="utf-8") as f:
+
     json.dump(stats, f, indent=2)
 
 
-
-# -------------------------
-# README
-# -------------------------
 
 readme = f"""# LeetCode Tracker
 
@@ -377,8 +486,9 @@ Auto-generated via GitHub Actions.
 
 
 with open("README.md", "w", encoding="utf-8") as f:
+
     f.write(readme)
 
 
-print("sync complete")
 
+print("sync complete")
