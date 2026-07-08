@@ -1,4 +1,3 @@
-```python
 import os
 import requests
 import re
@@ -382,4 +381,4 @@ with open("README.md", "w", encoding="utf-8") as f:
 
 
 print("sync complete")
-```
+
