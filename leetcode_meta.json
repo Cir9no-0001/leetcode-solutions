@@ -46,5 +46,17 @@
   },
   "department-highest-salary": {
     "first_seen": "2026-07-05 22:27:45 EDT"
+  },
+  "consecutive-numbers": {
+    "first_seen": "2026-07-08 02:38:05 EDT"
+  },
+  "department-top-three-salaries": {
+    "first_seen": "2026-07-08 02:38:05 EDT"
+  },
+  "swap-sex-of-employees": {
+    "first_seen": "2026-07-08 02:38:06 EDT"
+  },
+  "sales-person": {
+    "first_seen": "2026-07-08 02:38:07 EDT"
   }
 }
