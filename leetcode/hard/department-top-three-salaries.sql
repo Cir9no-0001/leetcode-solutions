@@ -1,7 +1,7 @@
 -- Department Top Three Salaries
 -- https://leetcode.com/problems/department-top-three-salaries
 -- difficulty: hard
--- first_seen: 2026-07-07 22:49:38 EDT
+-- first_seen: 2026-07-08 02:29:22 EDT
 -- runtime: 929
 
 -- NOTES START
