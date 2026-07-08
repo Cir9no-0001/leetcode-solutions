@@ -14,4 +14,4 @@ case
     then 'Yes'
     else 'No'
     end as triangle
-from Triangle te
+from Triangle t
