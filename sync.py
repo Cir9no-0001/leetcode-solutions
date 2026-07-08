@@ -8,11 +8,14 @@ from zoneinfo import ZoneInfo
 
 LOCAL_TZ = ZoneInfo("America/Toronto")
 
+META_FILE = "leetcode_meta.json"
+
+
 username = os.environ.get("LEETCODE_USERNAME")
 session = os.environ.get("LEETCODE_SESSION")
 
 if not username or not session:
-    raise Exception("Missing LEETCODE_USERNAME or LEETCODE_SESSION")
+    raise Exception("Missing LeetCode credentials")
 
 
 headers = {
@@ -22,7 +25,10 @@ headers = {
 }
 
 
-META_FILE = "leetcode_meta.json"
+def now():
+    return datetime.now(LOCAL_TZ).strftime(
+        "%Y-%m-%d %H:%M:%S %Z"
+    )
 
 
 def post(query):
@@ -33,11 +39,10 @@ def post(query):
             headers=headers,
             timeout=10
         )
-
         return response.json()
 
     except Exception as e:
-        print("Request error:", e)
+        print("Request failed:", e)
         return {}
 
 
@@ -47,13 +52,6 @@ def clean(name):
         re.sub(r"[^a-zA-Z0-9\- ]", "", name)
         .lower()
         .replace(" ", "-")
-    )
-
-
-
-def now():
-    return datetime.now(LOCAL_TZ).strftime(
-        "%Y-%m-%d %H:%M:%S %Z"
     )
 
 
@@ -96,13 +94,13 @@ else:
 
 
 # -------------------------
-# Get recent submissions
+# Get submissions
 # -------------------------
 
 query = {
     "query": """
-    query recentAcSubmissions($username: String!) {
-      recentAcSubmissionList(username: $username) {
+    query recentAcSubmissions($username:String!) {
+      recentAcSubmissionList(username:$username) {
         title
         titleSlug
       }
@@ -114,12 +112,13 @@ query = {
 }
 
 
-data = post(query)
+response = post(query)
 
 
 subs = (
-    data.get("data", {})
-        .get("recentAcSubmissionList", [])
+    response
+    .get("data", {})
+    .get("recentAcSubmissionList", [])
 )
 
 
@@ -128,11 +127,8 @@ if not subs:
 
 
 
-# -------------------------
-# Difficulty
-# -------------------------
-
 difficulty_cache = {}
+
 
 
 def get_difficulty(slug):
@@ -141,10 +137,10 @@ def get_difficulty(slug):
         return difficulty_cache[slug]
 
 
-    query = {
+    response = post({
         "query": """
-        query questionData($titleSlug: String!) {
-          question(titleSlug: $titleSlug) {
+        query questionData($titleSlug:String!) {
+          question(titleSlug:$titleSlug) {
             difficulty
           }
         }
@@ -152,17 +148,15 @@ def get_difficulty(slug):
         "variables": {
             "titleSlug": slug
         }
-    }
-
-
-    data = post(query)
+    })
 
 
     difficulty = (
-        data.get("data", {})
-            .get("question", {})
-            .get("difficulty", "unknown")
-            .lower()
+        response
+        .get("data", {})
+        .get("question", {})
+        .get("difficulty", "unknown")
+        .lower()
     )
 
 
@@ -172,16 +166,16 @@ def get_difficulty(slug):
 
 
 
-# -------------------------
-# Submission details
-# -------------------------
-
 def get_submission(slug):
 
-    query = {
+    response = post({
         "query": """
-        query submissionList($offset: Int!, $limit: Int!, $questionSlug: String!) {
-          submissionList(offset: $offset, limit: $limit, questionSlug: $questionSlug) {
+        query submissionList($offset:Int!, $limit:Int!, $questionSlug:String!) {
+          submissionList(
+            offset:$offset,
+            limit:$limit,
+            questionSlug:$questionSlug
+          ) {
             submissions {
               id
             }
@@ -193,16 +187,13 @@ def get_submission(slug):
             "limit": 1,
             "questionSlug": slug
         }
-    }
-
-
-    data = post(query)
+    })
 
 
     try:
 
         submission_id = (
-            data["data"]
+            response["data"]
             ["submissionList"]
             ["submissions"][0]
             ["id"]
@@ -218,114 +209,62 @@ def get_submission(slug):
 
 
     detail = post({
-
         "query": """
-        query submissionDetails($submissionId: Int!) {
-          submissionDetails(submissionId: $submissionId) {
+        query submissionDetails($submissionId:Int!) {
+          submissionDetails(submissionId:$submissionId) {
             code
             runtime
           }
         }
         """,
-
         "variables": {
             "submissionId": int(submission_id)
         }
-
     })
 
 
     result = (
-        detail.get("data", {})
+        detail
+        .get("data", {})
         .get("submissionDetails", {})
     )
 
 
     return {
-
         "code": result.get("code"),
-
         "runtime": result.get("runtime")
-
     }
 
 
 
-# -------------------------
-# Stats
-# -------------------------
-
 stats = {
-
     "total": 0,
-
     "easy": 0,
-
     "medium": 0,
-
     "hard": 0,
-
     "last_updated": now()
-
 }
 
 
 
-# -------------------------
-# Create files
-# -------------------------
-
 for submission in subs:
 
-
     title = submission["title"]
-
     slug = submission["titleSlug"]
 
 
     difficulty = get_difficulty(slug)
 
+    data = get_submission(slug)
 
-    submission_data = get_submission(slug)
-
-
-    code = submission_data["code"]
-
-    runtime = submission_data["runtime"]
-
-
-
-    # IMPORTANT SAFETY CHECK
-    # Prevent empty API responses destroying files
-
-    if not code or not code.strip():
-
-        print(
-            f"Skipping {title}: LeetCode returned no code"
-        )
-
-        continue
-
-
-
-    if slug not in meta:
-
-        meta[slug] = {
-
-            "first_seen": now()
-
-        }
-
-
-
-    first_seen = meta[slug]["first_seen"]
+    code = data["code"]
+    runtime = data["runtime"]
 
 
 
     folder = f"leetcode/{difficulty}"
 
     os.makedirs(folder, exist_ok=True)
-
 
 
     file_path = (
@@ -339,26 +278,43 @@ for submission in subs:
     old_notes = None
 
 
-
     if os.path.exists(file_path):
 
         with open(file_path, "r", encoding="utf-8") as f:
-
             old_content = f.read()
 
-
         old_notes = extract_notes(old_content)
+
+
+
+    # Never destroy files if API fails
+    if not code:
+
+        print(
+            f"Skipped {title}: no code returned"
+        )
+
+        continue
+
+
+
+    if slug not in meta:
+
+        meta[slug] = {
+            "first_seen": now()
+        }
+
+
+
+    first_seen = meta[slug]["first_seen"]
 
 
 
     content = [
 
         f"-- {title}",
-
         f"-- https://leetcode.com/problems/{slug}",
-
         f"-- difficulty: {difficulty}",
-
         f"-- first_seen: {first_seen}"
 
     ]
@@ -366,15 +322,12 @@ for submission in subs:
 
 
     if runtime:
-
         content.append(
             f"-- runtime: {runtime}"
         )
 
 
-
     content.append("")
-
 
 
     if old_notes:
@@ -384,21 +337,14 @@ for submission in subs:
     else:
 
         content.extend([
-
             "-- NOTES START",
-
             "-- write your notes here",
-
             "-- NOTES END"
-
         ])
 
 
-
     content.append("")
-
     content.append(code)
-
 
 
     new_content = "\n".join(content)
@@ -408,62 +354,53 @@ for submission in subs:
     if new_content != old_content:
 
         with open(file_path, "w", encoding="utf-8") as f:
-
             f.write(new_content)
 
 
 
     stats["total"] += 1
 
-    stats[difficulty] += 1
+    if difficulty in stats:
+        stats[difficulty] += 1
 
 
 
-
-
-# -------------------------
-# Save files
-# -------------------------
+# Save metadata
 
 with open(META_FILE, "w", encoding="utf-8") as f:
-
     json.dump(meta, f, indent=2)
 
 
 
 with open("leetcode_stats.json", "w", encoding="utf-8") as f:
-
     json.dump(stats, f, indent=2)
 
 
 
-# -------------------------
-# README
-# -------------------------
-
 readme = f"""# LeetCode Tracker
 
-Last updated: {stats["last_updated"]}
+> Last synced: {stats["last_updated"]}
 
-## Summary
+## Statistics
 
-- Total solved: {stats["total"]}
-- Easy: {stats["easy"]}
-- Medium: {stats["medium"]}
-- Hard: {stats["hard"]}
+| Difficulty | Count |
+|---|---:|
+| Easy | {stats["easy"]} |
+| Medium | {stats["medium"]} |
+| Hard | {stats["hard"]} |
+| Total | {stats["total"]} |
 
 ## Structure
 
-- leetcode/easy/
-- leetcode/medium/
-- leetcode/hard/
+- `leetcode/easy/`
+- `leetcode/medium/`
+- `leetcode/hard/`
 
 Auto-generated via GitHub Actions.
 """
 
 
 with open("README.md", "w", encoding="utf-8") as f:
-
     f.write(readme)
 
 
