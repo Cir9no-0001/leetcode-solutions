@@ -1,18 +1,20 @@
 # LeetCode Tracker
 
-Last updated: 2026-07-08 03:45:42 EDT
+> Last synced: 2026-07-08 03:56:59 EDT
 
-## Summary
+## Statistics
 
-- Total solved: 20
-- Easy: 14
-- Medium: 5
-- Hard: 1
+| Difficulty | Count |
+|---|---:|
+| Easy | 14 |
+| Medium | 5 |
+| Hard | 1 |
+| Total | 20 |
 
 ## Structure
 
-- leetcode/easy/
-- leetcode/medium/
-- leetcode/hard/
+- `leetcode/easy/`
+- `leetcode/medium/`
+- `leetcode/hard/`
 
 Auto-generated via GitHub Actions.
