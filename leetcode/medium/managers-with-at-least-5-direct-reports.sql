@@ -5,7 +5,7 @@
 -- runtime: 382
 
 -- NOTES START
--- write your notes here
+-- Hint: inner join, use id and not name when grouping
 -- NOTES END
 
 Select e.name
