@@ -1,4 +1,4 @@
-import os
+getimport os
 import requests
 import re
 import json
@@ -157,27 +157,30 @@ def get_submission(slug):
         """,
         "variables": {
             "offset": 0,
-            "limit": 1,
+            "limit": 10,
             "questionSlug": slug
         }
     })
 
 
-    try:
+    submissions = (
+        response
+        .get("data", {})
+        .get("submissionList", {})
+        .get("submissions", [])
+    )
 
-        submission_id = (
-            response["data"]
-            ["submissionList"]
-            ["submissions"][0]
-            ["id"]
-        )
 
-    except Exception:
-
+    if not submissions:
+        print(f"No submission ID found for {slug}")
         return {
             "code": None,
             "runtime": None
         }
+
+
+    submission_id = submissions[0]["id"]
+
 
     detail = post({
         "query": """
@@ -193,11 +196,13 @@ def get_submission(slug):
         }
     })
 
+
     result = (
         detail
         .get("data", {})
         .get("submissionDetails", {})
     )
+
 
     return {
         "code": result.get("code"),
