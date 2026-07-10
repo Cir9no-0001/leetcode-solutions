@@ -6,7 +6,12 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 
+# =========================
+# CONFIG
+# =========================
+
 LOCAL_TZ = ZoneInfo("America/Toronto")
+
 META_FILE = "leetcode_meta.json"
 
 
@@ -25,33 +30,46 @@ headers = {
 }
 
 
+# =========================
+# HELPERS
+# =========================
+
+
 def now():
     return datetime.now(LOCAL_TZ).strftime(
         "%Y-%m-%d %H:%M:%S %Z"
     )
 
 
-def post(query):
+def post(payload):
 
     try:
-        r = requests.post(
+
+        response = requests.post(
             "https://leetcode.com/graphql",
-            json=query,
+            json=payload,
             headers=headers,
             timeout=15
         )
 
-        return r.json()
+        return response.json()
 
     except Exception as e:
-        print("API error:", e)
+
+        print("Request error:", e)
+
         return {}
 
 
 
 def clean(name):
+
     return (
-        re.sub(r"[^a-zA-Z0-9\- ]", "", name)
+        re.sub(
+            r"[^a-zA-Z0-9\- ]",
+            "",
+            name
+        )
         .lower()
         .replace(" ", "-")
     )
@@ -66,7 +84,7 @@ def extract_notes(content):
     end = None
 
 
-    for i,line in enumerate(lines):
+    for i, line in enumerate(lines):
 
         if line.strip() == "-- NOTES START":
             start = i
@@ -76,317 +94,362 @@ def extract_notes(content):
 
 
     if start is not None and end is not None:
-        return lines[start:end+1]
+
+        return lines[start:end + 1]
 
 
     return None
 
 
 
+# =========================
+# LOAD META
+# =========================
+
+
 if os.path.exists(META_FILE):
 
-    with open(META_FILE,"r",encoding="utf-8") as f:
-        meta=json.load(f)
+    with open(
+        META_FILE,
+        "r",
+        encoding="utf-8"
+    ) as f:
+
+        meta = json.load(f)
 
 else:
-    meta={}
+
+    meta = {}
 
 
 
-recent_query = {
+# =========================
+# GET RECENT ACCEPTED
+# =========================
 
-"query": """
 
-query recentAcSubmissions($username:String!) {
+query = {
 
-recentAcSubmissionList(username:$username) {
+    "query": """
 
-title
-titleSlug
+    query recentAcSubmissions($username:String!) {
+
+        recentAcSubmissionList(username:$username) {
+
+            id
+
+            title
+
+            titleSlug
+
+        }
+
+    }
+
+    """,
+
+    "variables": {
+
+        "username": username
+
+    }
 
 }
 
-}
-
-""",
-
-"variables":{
-"username":username
-}
-
-}
 
 
-
-response = post(recent_query)
+response = post(query)
 
 
 
 subs = (
+
     response
-    .get("data",{})
-    .get("recentAcSubmissionList",[])
+    .get("data", {})
+    .get("recentAcSubmissionList", [])
+
 )
 
 
 
 if not subs:
-    raise Exception("No accepted submissions detected")
+
+    raise Exception(
+        "No accepted submissions returned"
+    )
 
 
 
-print("Detected submissions:")
+print("\nDetected submissions:")
+
 
 for s in subs:
-    print("-",s["title"])
+
+    print(
+        f"- {s['title']} ({s['id']})"
+    )
 
 
 
-difficulty_cache={}
+# =========================
+# GET DIFFICULTY
+# =========================
+
+
+difficulty_cache = {}
 
 
 
 def get_difficulty(slug):
 
+
     if slug in difficulty_cache:
+
         return difficulty_cache[slug]
 
 
-    result=post({
 
-"query":"""
+    response = post({
 
-query questionData($titleSlug:String!) {
+        "query": """
 
-question(titleSlug:$titleSlug){
+        query questionData($titleSlug:String!) {
 
-difficulty
+            question(titleSlug:$titleSlug) {
 
-}
+                difficulty
 
-}
+            }
 
-""",
+        }
 
-"variables":{
-"titleSlug":slug
-}
+        """,
 
-})
+        "variables": {
 
+            "titleSlug": slug
 
-    difficulty=(
+        }
 
-result
-.get("data",{})
-.get("question",{})
-.get("difficulty","unknown")
-.lower()
-
-)
+    })
 
 
-    difficulty_cache[slug]=difficulty
+
+    difficulty = (
+
+        response
+        .get("data", {})
+        .get("question", {})
+        .get(
+            "difficulty",
+            "unknown"
+        )
+        .lower()
+
+    )
+
+
+    difficulty_cache[slug] = difficulty
 
 
     return difficulty
 
 
 
-def get_submission_code(slug):
+# =========================
+# GET CODE
+# =========================
 
 
-    history = post({
-
-"query":"""
-
-query submissionList(
-$offset:Int!,
-$limit:Int!,
-$questionSlug:String!
-){
-
-submissionList(
-offset:$offset,
-limit:$limit,
-questionSlug:$questionSlug
-){
-
-submissions{
-
-id
-
-}
-
-}
-
-}
-
-""",
-
-"variables":{
-
-"offset":0,
-"limit":1,
-"questionSlug":slug
-
-}
-
-})
+def get_submission(submission_id):
 
 
-    try:
+    response = post({
 
-        submission_id = (
+        "query": """
 
-        history
-        ["data"]
-        ["submissionList"]
-        ["submissions"][0]
-        ["id"]
+        query submissionDetails($submissionId:Int!) {
 
-        )
+            submissionDetails(submissionId:$submissionId) {
 
-    except Exception:
+                code
 
-        print(
-        "No submission history:",
-        slug
-        )
+                runtime
 
-        return None,None
+            }
+
+        }
+
+        """,
+
+        "variables": {
+
+            "submissionId": int(submission_id)
+
+        }
+
+    })
 
 
 
-    details = post({
+    result = (
 
-"query":"""
-
-query submissionDetails($submissionId:Int!){
-
-submissionDetails(
-submissionId:$submissionId
-){
-
-code
-runtime
-
-}
-
-}
-
-""",
-
-"variables":{
-
-"submissionId":int(submission_id)
-
-}
-
-})
-
-
-    result=(
-
-    details
-    .get("data",{})
-    .get("submissionDetails")
+        response
+        .get("data", {})
+        .get("submissionDetails")
 
     )
+
 
 
     if not result:
 
         print(
-        "No details:",
-        slug
+            f"No submission details found: {submission_id}"
         )
 
-        return None,None
+
+        return {
+
+            "code": None,
+
+            "runtime": None
+
+        }
 
 
 
-    return (
-        result.get("code"),
-        result.get("runtime")
-    )
+    return {
+
+        "code": result.get("code"),
+
+        "runtime": result.get("runtime")
+
+    }
 
 
 
+# =========================
+# SYNC
+# =========================
 
 
 for submission in subs:
 
 
-    title=submission["title"]
-    slug=submission["titleSlug"]
+    title = submission["title"]
+
+    slug = submission["titleSlug"]
+
+    submission_id = submission["id"]
 
 
-    difficulty=get_difficulty(slug)
+
+    difficulty = get_difficulty(slug)
 
 
-    code,runtime=get_submission_code(slug)
+
+    data = get_submission(submission_id)
+
+
+
+    code = data["code"]
+
+    runtime = data["runtime"]
+
 
 
     if not code:
 
         print(
-        "Skipped:",
-        title
+            f"Skipped {title}: no code returned"
         )
 
         continue
 
 
 
-    folder=f"leetcode/{difficulty}"
-
-    os.makedirs(folder,exist_ok=True)
+    folder = f"leetcode/{difficulty}"
 
 
-    filepath=f"{folder}/{clean(title)}.sql"
+    os.makedirs(
+        folder,
+        exist_ok=True
+    )
 
 
-    old_content=""
 
-    old_notes=None
+    file_path = (
 
+        f"{folder}/{clean(title)}.sql"
 
-    if os.path.exists(filepath):
-
-        with open(filepath,"r",encoding="utf-8") as f:
-            old_content=f.read()
+    )
 
 
-        old_notes=extract_notes(old_content)
+
+    old_content = ""
+
+
+    old_notes = None
+
+
+
+    if os.path.exists(file_path):
+
+
+        with open(
+            file_path,
+            "r",
+            encoding="utf-8"
+        ) as f:
+
+            old_content = f.read()
+
+
+
+        old_notes = extract_notes(old_content)
 
 
 
     if slug not in meta:
 
-        meta[slug]={
-            "first_seen":now()
+
+        meta[slug] = {
+
+            "first_seen": now()
+
         }
 
 
 
-    content=[
+    first_seen = meta[slug]["first_seen"]
 
-    f"-- {title}",
-    f"-- https://leetcode.com/problems/{slug}",
-    f"-- difficulty: {difficulty}",
-    f"-- first_seen: {meta[slug]['first_seen']}"
+
+
+    content = [
+
+        f"-- {title}",
+
+        f"-- https://leetcode.com/problems/{slug}",
+
+        f"-- difficulty: {difficulty}",
+
+        f"-- first_seen: {first_seen}"
 
     ]
 
 
+
     if runtime:
+
         content.append(
-        f"-- runtime: {runtime}"
+            f"-- runtime: {runtime}"
         )
 
 
+
     content.append("")
+
 
 
     if old_notes:
@@ -397,84 +460,156 @@ for submission in subs:
 
         content.extend([
 
-        "-- NOTES START",
-        "-- write notes here",
-        "-- NOTES END"
+            "-- NOTES START",
+
+            "-- write your notes here",
+
+            "-- NOTES END"
 
         ])
 
 
+
     content.append("")
+
     content.append(code)
 
 
-    new_content="\n".join(content)
+
+    new_content = "\n".join(content)
+
 
 
     if new_content != old_content:
 
-        with open(filepath,"w",encoding="utf-8") as f:
+
+        with open(
+            file_path,
+            "w",
+            encoding="utf-8"
+        ) as f:
+
             f.write(new_content)
 
-        print("Updated:",filepath)
+
+
+        print(
+            f"Updated: {title}"
+        )
+
+
+    else:
+
+        print(
+            f"Already synced: {title}"
+        )
 
 
 
+# =========================
+# STATS
+# =========================
 
 
-stats={}
+stats = {
+
+    "easy": 0,
+
+    "medium": 0,
+
+    "hard": 0,
+
+    "total": 0,
+
+    "last_updated": now()
+
+}
 
 
 
 for difficulty in [
+
     "easy",
+
     "medium",
+
     "hard"
+
 ]:
 
 
-    folder=f"leetcode/{difficulty}"
+    folder = f"leetcode/{difficulty}"
+
 
 
     if os.path.exists(folder):
 
-        stats[difficulty]=len([
 
-        f for f in os.listdir(folder)
-        if f.endswith(".sql")
+        stats[difficulty] = len([
+
+            f for f in os.listdir(folder)
+
+            if f.endswith(".sql")
 
         ])
 
-    else:
-
-        stats[difficulty]=0
 
 
 
-stats["total"]=(
-stats["easy"]
-+
-stats["medium"]
-+
-stats["hard"]
+stats["total"] = (
+
+    stats["easy"]
+
+    + stats["medium"]
+
+    + stats["hard"]
+
 )
 
 
-stats["last_updated"]=now()
+
+# =========================
+# SAVE FILES
+# =========================
+
+
+with open(
+    META_FILE,
+    "w",
+    encoding="utf-8"
+) as f:
+
+    json.dump(
+        meta,
+        f,
+        indent=2
+    )
 
 
 
-with open(META_FILE,"w",encoding="utf-8") as f:
-    json.dump(meta,f,indent=2)
+with open(
+    "leetcode_stats.json",
+    "w",
+    encoding="utf-8"
+) as f:
+
+    json.dump(
+        stats,
+        f,
+        indent=2
+    )
 
 
 
-readme=f"""
+readme = f"""
 
 # LeetCode Tracker
 
 
-Last synced: {stats["last_updated"]}
+Last synced:
+
+{stats["last_updated"]}
+
 
 
 ## Statistics
@@ -488,21 +623,30 @@ Last synced: {stats["last_updated"]}
 | Total | {stats["total"]} |
 
 
+
 ## Structure
 
-- leetcode/easy
-- leetcode/medium
-- leetcode/hard
+
+- leetcode/easy/
+
+- leetcode/medium/
+
+- leetcode/hard/
 
 
-Auto-generated using GitHub Actions.
+Auto-generated via GitHub Actions.
 
 """
 
 
-with open("README.md","w",encoding="utf-8") as f:
+with open(
+    "README.md",
+    "w",
+    encoding="utf-8"
+) as f:
+
     f.write(readme)
 
 
 
-print("sync complete")
+print("\nSync complete")
