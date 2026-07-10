@@ -1,15 +1,15 @@
 # LeetCode Tracker
 
-> Last synced: 2026-07-09 05:18:24 EDT
+> Last synced: 2026-07-09 21:20:34 EDT
 
 ## Statistics
 
 | Difficulty | Count |
 |---|---:|
 | Easy | 19 |
-| Medium | 6 |
+| Medium | 7 |
 | Hard | 1 |
-| Total | 26 |
+| Total | 27 |
 
 ## Structure
 
