@@ -3,8 +3,7 @@
 # LeetCode Tracker
 
 
-> Last synced: 2026-07-09 23:50:30 EDT
-
+Last synced: 2026-07-09 23:57:55 EDT
 
 
 ## Statistics
@@ -18,17 +17,12 @@
 | Total | 27 |
 
 
-
 ## Structure
 
-
-- `leetcode/easy/`
-
-- `leetcode/medium/`
-
-- `leetcode/hard/`
+- leetcode/easy
+- leetcode/medium
+- leetcode/hard
 
 
-
-Auto-generated via GitHub Actions.
+Auto-generated using GitHub Actions.
 
