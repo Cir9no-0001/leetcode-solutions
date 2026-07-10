@@ -5,309 +5,234 @@ import requests
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-LOCAL_TZ = ZoneInfo("America/Toronto")
+TZ = ZoneInfo("America/Toronto")
 
-META_FILE = "leetcode_meta.json"
+USERNAME = os.environ.get("LEETCODE_USERNAME")
+SESSION = os.environ.get("LEETCODE_SESSION")
 
-username = os.environ.get("LEETCODE_USERNAME")
-session = os.environ.get("LEETCODE_SESSION")
-
-if not username or not session:
+if not USERNAME or not SESSION:
     raise Exception("Missing LeetCode credentials")
 
-headers = {
-    "cookie": f"LEETCODE_SESSION={session}",
-    "referer": "https://leetcode.com",
+
+HEADERS = {
+    "cookie": f"LEETCODE_SESSION={SESSION}",
     "content-type": "application/json",
+    "referer": "https://leetcode.com",
     "user-agent": "Mozilla/5.0"
 }
 
 
 def now():
-    return datetime.now(LOCAL_TZ).strftime(
+    return datetime.now(TZ).strftime(
         "%Y-%m-%d %H:%M:%S %Z"
     )
 
 
-def post(query):
-    try:
-        r = requests.post(
-            "https://leetcode.com/graphql",
-            json=query,
-            headers=headers,
-            timeout=15
-        )
+def graphql(query, variables=None):
 
-        data = r.json()
+    r = requests.post(
+        "https://leetcode.com/graphql",
+        headers=HEADERS,
+        json={
+            "query": query,
+            "variables": variables or {}
+        },
+        timeout=20
+    )
 
-        if "errors" in data:
-            print("GRAPHQL ERROR:")
-            print(data["errors"])
+    data = r.json()
 
-        return data
+    if "errors" in data:
+        print(data["errors"])
 
-    except Exception as e:
-        print("Request failed:", e)
-        return {}
+    return data
+
 
 
 def clean(name):
-    return (
-        re.sub(
-            r"[^a-zA-Z0-9\- ]",
-            "",
-            name
-        )
-        .lower()
-        .replace(" ", "-")
-    )
+    return re.sub(
+        r"[^a-zA-Z0-9 ]",
+        "",
+        name
+    ).lower().replace(" ","-")
 
 
-def extract_notes(content):
-    lines = content.splitlines()
-
-    start = None
-    end = None
-
-    for i, line in enumerate(lines):
-        if line.strip() == "-- NOTES START":
-            start = i
-
-        if line.strip() == "-- NOTES END":
-            end = i
-
-    if start is not None and end is not None:
-        return lines[start:end + 1]
-
-    return None
-
-
-if os.path.exists(META_FILE):
-    with open(META_FILE, "r", encoding="utf-8") as f:
-        meta = json.load(f)
-else:
-    meta = {}
-
-
-# -----------------------------
+# ----------------------------
 # GET RECENT ACCEPTED SUBMISSIONS
-# -----------------------------
+# ----------------------------
 
-response = post({
-    "query": """
-    query recentAcSubmissions($username:String!){
-        recentAcSubmissionList(username:$username){
-            title
-            titleSlug
-        }
-    }
-    """,
-    "variables":{
-        "username":username
-    }
-})
+query = """
+query recentSubmissionList($username:String!){
+ matchedUser(username:$username){
+  submitStatsGlobal{
+   acSubmissionNum{
+    difficulty
+    count
+   }
+  }
+ }
+}
+"""
 
 
-subs = (
-    response
-    .get("data", {})
-    .get("recentAcSubmissionList", [])
+
+# ----------------------------
+# GET RECENT SUBMISSIONS WITH IDS
+# ----------------------------
+
+
+subs = graphql(
+"""
+query recentSubmissionList($username:String!){
+ recentSubmissionList(username:$username,limit:20){
+   id
+   title
+   titleSlug
+   statusDisplay
+ }
+}
+""",
+{
+"username":USERNAME
+}
 )
 
 
-if not subs:
-    raise Exception("No submissions found")
+
+submissions = (
+    subs
+    .get("data",{})
+    .get("recentSubmissionList",[])
+)
 
 
-print("\nDetected submissions:")
-
-for s in subs:
-    print("-", s["title"])
+if not submissions:
+    raise Exception("Could not get submissions")
 
 
-# -----------------------------
+accepted=[]
+
+
+for s in submissions:
+
+    if s["statusDisplay"]=="Accepted":
+
+        accepted.append(s)
+
+
+
+print("\nAccepted submissions:")
+
+for s in accepted:
+    print(
+        "-",
+        s["title"]
+    )
+
+
+
+# ----------------------------
+# SUBMISSION DETAILS
+# ----------------------------
+
+
+def get_code(submission_id):
+
+    result = graphql(
+"""
+query submissionDetails($id:Int!){
+ submissionDetails(submissionId:$id){
+  code
+  runtime
+ }
+}
+""",
+{
+"id":int(submission_id)
+}
+)
+
+
+    details = (
+        result
+        .get("data",{})
+        .get("submissionDetails")
+    )
+
+
+    if not details:
+        return None,None
+
+
+    return (
+        details.get("code"),
+        details.get("runtime")
+    )
+
+
+
+# ----------------------------
 # DIFFICULTY
-# -----------------------------
-
-difficulty_cache = {}
+# ----------------------------
 
 
 def get_difficulty(slug):
 
-    if slug in difficulty_cache:
-        return difficulty_cache[slug]
-
-    response = post({
-        "query": """
-        query questionData($titleSlug:String!){
-            question(titleSlug:$titleSlug){
-                difficulty
-            }
-        }
-        """,
-        "variables":{
-            "titleSlug":slug
-        }
-    })
+    result = graphql(
+"""
+query questionData($slug:String!){
+ question(titleSlug:$slug){
+  difficulty
+ }
+}
+""",
+{
+"slug":slug
+}
+)
 
 
-    difficulty = (
-        response
-        .get("data", {})
-        .get("question", {})
+    return (
+        result
+        .get("data",{})
+        .get("question",{})
         .get("difficulty","unknown")
         .lower()
     )
 
 
-    difficulty_cache[slug] = difficulty
 
-    return difficulty
-
-
-
-# -----------------------------
-# GET ACTUAL SUBMISSION CODE
-# -----------------------------
-
-def get_submission(slug):
-
-    history = post({
-        "query": """
-        query submissionList(
-            $offset:Int!,
-            $limit:Int!,
-            $questionSlug:String!
-        ){
-            submissionList(
-                offset:$offset,
-                limit:$limit,
-                questionSlug:$questionSlug
-            ){
-                submissions{
-                    id
-                }
-            }
-        }
-        """,
-        "variables":{
-            "offset":0,
-            "limit":5,
-            "questionSlug":slug
-        }
-    })
+# ----------------------------
+# WRITE FILES
+# ----------------------------
 
 
-    try:
-
-        submissions = (
-            history
-            ["data"]
-            ["submissionList"]
-            ["submissions"]
-        )
-
-    except Exception:
-
-        print(
-            "No submission history:",
-            slug
-        )
-
-        return {
-            "code":None,
-            "runtime":None
-        }
+for sub in accepted:
 
 
-    if not submissions:
-
-        print(
-            "Empty submission history:",
-            slug
-        )
-
-        return {
-            "code":None,
-            "runtime":None
-        }
+    title=sub["title"]
+    slug=sub["titleSlug"]
+    sid=sub["id"]
 
 
-    submission_id = submissions[0]["id"]
-
-
-    detail = post({
-        "query":"""
-        query submissionDetails($submissionId:Int!){
-            submissionDetails(
-                submissionId:$submissionId
-            ){
-                code
-                runtime
-            }
-        }
-        """,
-        "variables":{
-            "submissionId":int(submission_id)
-        }
-    })
-
-
-    result = (
-        detail
-        .get("data", {})
-        .get("submissionDetails")
-    )
-
-
-    if not result:
-
-        print(
-            "No details returned:",
-            submission_id
-        )
-
-        return {
-            "code":None,
-            "runtime":None
-        }
-
-
-    return {
-        "code":result.get("code"),
-        "runtime":result.get("runtime")
-    }
-
-
-
-# -----------------------------
-# SYNC FILES
-# -----------------------------
-
-for submission in subs:
-
-    title = submission["title"]
-    slug = submission["titleSlug"]
-
-    difficulty = get_difficulty(slug)
-
-    data = get_submission(slug)
-
-    code = data["code"]
-    runtime = data["runtime"]
+    code,runtime=get_code(sid)
 
 
     if not code:
 
         print(
-            "Skipped:",
+            "No code:",
             title
         )
 
         continue
 
 
-    folder = f"leetcode/{difficulty}"
+
+    difficulty=get_difficulty(slug)
+
+
+    folder=f"leetcode/{difficulty}"
 
     os.makedirs(
         folder,
@@ -315,82 +240,33 @@ for submission in subs:
     )
 
 
-    path = (
-        f"{folder}/{clean(title)}.sql"
-    )
+    filepath=f"{folder}/{clean(title)}.sql"
 
 
-    old_content = ""
-
-    notes = None
-
-
-    if os.path.exists(path):
-
-        with open(
-            path,
-            "r",
-            encoding="utf-8"
-        ) as f:
-            old_content = f.read()
-
-        notes = extract_notes(old_content)
+    content=f"""-- {title}
+-- https://leetcode.com/problems/{slug}
+-- difficulty: {difficulty}
+-- synced: {now()}
+-- runtime: {runtime}
 
 
-
-    if slug not in meta:
-
-        meta[slug] = {
-            "first_seen":now()
-        }
+{code}
+"""
 
 
-    content = [
-        f"-- {title}",
-        f"-- https://leetcode.com/problems/{slug}",
-        f"-- difficulty: {difficulty}",
-        f"-- first_seen: {meta[slug]['first_seen']}"
-    ]
+    old=""
+
+    if os.path.exists(filepath):
+
+        with open(filepath,"r",encoding="utf8") as f:
+            old=f.read()
 
 
-    if runtime:
-        content.append(
-            f"-- runtime: {runtime}"
-        )
 
+    if old != content:
 
-    content.append("")
-
-
-    if notes:
-
-        content.extend(notes)
-
-    else:
-
-        content.extend([
-            "-- NOTES START",
-            "-- write notes here",
-            "-- NOTES END"
-        ])
-
-
-    content.append("")
-    content.append(code)
-
-
-    new_content = "\n".join(content)
-
-
-    if new_content != old_content:
-
-        with open(
-            path,
-            "w",
-            encoding="utf-8"
-        ) as f:
-
-            f.write(new_content)
+        with open(filepath,"w",encoding="utf8") as f:
+            f.write(content)
 
 
         print(
@@ -400,62 +276,42 @@ for submission in subs:
 
 
 
-# -----------------------------
-# STATS
-# -----------------------------
+# ----------------------------
+# COUNT FILES
+# ----------------------------
 
-stats = {
-    "easy":0,
-    "medium":0,
-    "hard":0,
-    "total":0,
-    "last_updated":now()
+
+stats={
+"easy":0,
+"medium":0,
+"hard":0
 }
 
 
-for difficulty in [
-    "easy",
-    "medium",
-    "hard"
-]:
 
-    folder = f"leetcode/{difficulty}"
+for d in stats:
+
+    folder=f"leetcode/{d}"
 
     if os.path.exists(folder):
 
-        stats[difficulty] = len([
-            f
-            for f in os.listdir(folder)
+        stats[d]=len(
+            [
+            f for f in os.listdir(folder)
             if f.endswith(".sql")
-        ])
+            ]
+        )
 
 
-stats["total"] = (
-    stats["easy"]
-    +
-    stats["medium"]
-    +
-    stats["hard"]
-)
+stats["total"]=sum(stats.values())
+
+stats["last_updated"]=now()
 
 
 
 with open(
-    META_FILE,
-    "w",
-    encoding="utf-8"
-) as f:
-    json.dump(
-        meta,
-        f,
-        indent=2
-    )
-
-
-with open(
-    "leetcode_stats.json",
-    "w",
-    encoding="utf-8"
+"leetcode_stats.json",
+"w"
 ) as f:
 
     json.dump(
@@ -463,38 +319,6 @@ with open(
         f,
         indent=2
     )
-
-
-
-readme = f"""
-# LeetCode Tracker
-
-Last synced: {stats["last_updated"]}
-
-| Difficulty | Count |
-|---|---:|
-| Easy | {stats["easy"]} |
-| Medium | {stats["medium"]} |
-| Hard | {stats["hard"]} |
-| Total | {stats["total"]} |
-
-Structure:
-
-- leetcode/easy/
-- leetcode/medium/
-- leetcode/hard/
-
-Automatically synced using GitHub Actions.
-"""
-
-
-with open(
-    "README.md",
-    "w",
-    encoding="utf-8"
-) as f:
-
-    f.write(readme)
 
 
 print("\nSync complete")
