@@ -1,0 +1,15 @@
+-- Project Employees I
+-- https://leetcode.com/problems/project-employees-i
+-- difficulty: easy
+-- first_seen: 2026-07-10 01:50:51 EDT
+-- runtime: 528
+--
+-- Notes stored in leetcode_notes.json
+
+select
+   p.project_id,
+   round(avg(e.experience_years),2) as average_years
+from Project p
+inner join Employee e
+on p.employee_id=e.employee_id
+group by p.project_id
