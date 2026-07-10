@@ -1,293 +1,241 @@
-import os
-import json
-import re
-import requests
+import os,json,re,requests
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-TZ = ZoneInfo("America/Toronto")
+TZ=ZoneInfo("America/Toronto")
+META="leetcode_meta.json"
 
-USERNAME = os.environ.get("LEETCODE_USERNAME")
-SESSION = os.environ.get("LEETCODE_SESSION")
+username=os.getenv("LEETCODE_USERNAME")
+session=os.getenv("LEETCODE_SESSION")
 
-if not USERNAME or not SESSION:
-    raise Exception("Missing LeetCode credentials")
+if not username or not session:
+    raise Exception("Missing LeetCode secrets")
 
-
-HEADERS = {
-    "cookie": f"LEETCODE_SESSION={SESSION}",
-    "content-type": "application/json",
-    "referer": "https://leetcode.com",
-    "user-agent": "Mozilla/5.0"
+headers={
+    "cookie":f"LEETCODE_SESSION={session}",
+    "referer":"https://leetcode.com",
+    "content-type":"application/json",
+    "user-agent":"Mozilla/5.0"
 }
 
-
 def now():
-    return datetime.now(TZ).strftime(
-        "%Y-%m-%d %H:%M:%S %Z"
-    )
+    return datetime.now(TZ).strftime("%Y-%m-%d %H:%M:%S %Z")
 
-
-def graphql(query, variables=None):
-
-    r = requests.post(
+def post(query):
+    r=requests.post(
         "https://leetcode.com/graphql",
-        headers=HEADERS,
-        json={
-            "query": query,
-            "variables": variables or {}
-        },
+        json=query,
+        headers=headers,
         timeout=20
     )
 
-    data = r.json()
+    try:
+        data=r.json()
+    except:
+        print(r.text)
+        return {}
 
     if "errors" in data:
-        print(data["errors"])
+        print("GRAPHQL:",data["errors"])
 
     return data
 
-
-
-def clean(name):
+def clean(x):
     return re.sub(
-        r"[^a-zA-Z0-9 ]",
+        r"[^a-zA-Z0-9\-]",
         "",
-        name
-    ).lower().replace(" ","-")
+        x.lower().replace(" ","-")
+    )
+
+if os.path.exists(META):
+    meta=json.load(open(META))
+else:
+    meta={}
 
 
-# ----------------------------
-# GET RECENT ACCEPTED SUBMISSIONS
-# ----------------------------
+# GET ACCEPTED SUBMISSIONS
 
-query = """
-query recentSubmissionList($username:String!){
- matchedUser(username:$username){
-  submitStatsGlobal{
-   acSubmissionNum{
-    difficulty
-    count
-   }
-  }
- }
-}
-"""
-
-
-
-# ----------------------------
-# GET RECENT SUBMISSIONS WITH IDS
-# ----------------------------
-
-
-subs = graphql(
-"""
-query recentSubmissionList($username:String!){
- recentSubmissionList(username:$username,limit:20){
-   id
-   title
-   titleSlug
-   statusDisplay
+q={
+"query":"""
+query($username:String!){
+ recentAcSubmissionList(username:$username){
+  id
+  title
+  titleSlug
  }
 }
 """,
-{
-"username":USERNAME
+"variables":{
+"username":username
 }
-)
+}
 
+subs=post(q).get(
+"data",
+{}
+).get(
+"recentAcSubmissionList",
+[])
 
-
-submissions = (
-    subs
-    .get("data",{})
-    .get("recentSubmissionList",[])
-)
-
-
-if not submissions:
-    raise Exception("Could not get submissions")
-
-
-accepted=[]
-
-
-for s in submissions:
-
-    if s["statusDisplay"]=="Accepted":
-
-        accepted.append(s)
-
-
+if not subs:
+    raise Exception("No accepted submissions")
 
 print("\nAccepted submissions:")
 
-for s in accepted:
-    print(
-        "-",
-        s["title"]
+
+seen=set()
+unique=[]
+
+for s in subs:
+
+    if s["id"] not in seen:
+        seen.add(s["id"])
+        unique.append(s)
+
+    print("-",s["title"],s["id"])
+
+
+# DIFFICULTY
+
+def difficulty(slug):
+
+    q={
+    "query":"""
+    query($slug:String!){
+     question(titleSlug:$slug){
+      difficulty
+     }
+    }
+    """,
+    "variables":{
+    "slug":slug
+    }
+    }
+
+    return post(q).get(
+    "data",
+    {}
+    ).get(
+    "question",
+    {}
+    ).get(
+    "difficulty",
+    "unknown"
+    ).lower()
+
+
+# GET CODE DIRECTLY FROM ID
+
+def get_code(id):
+
+    q={
+    "query":"""
+    query($id:Int!){
+      submissionDetails(submissionId:$id){
+        code
+        runtime
+      }
+    }
+    """,
+    "variables":{
+    "id":int(id)
+    }
+    }
+
+    result=post(q).get(
+    "data",
+    {}
+    ).get(
+    "submissionDetails"
     )
 
-
-
-# ----------------------------
-# SUBMISSION DETAILS
-# ----------------------------
-
-
-def get_code(submission_id):
-
-    result = graphql(
-"""
-query submissionDetails($id:Int!){
- submissionDetails(submissionId:$id){
-  code
-  runtime
- }
-}
-""",
-{
-"id":int(submission_id)
-}
-)
-
-
-    details = (
-        result
-        .get("data",{})
-        .get("submissionDetails")
-    )
-
-
-    if not details:
+    if not result:
+        print(
+        "FAILED CODE FETCH:",
+        id
+        )
         return None,None
 
-
     return (
-        details.get("code"),
-        details.get("runtime")
+    result.get("code"),
+    result.get("runtime")
     )
 
 
+for s in unique:
 
-# ----------------------------
-# DIFFICULTY
-# ----------------------------
-
-
-def get_difficulty(slug):
-
-    result = graphql(
-"""
-query questionData($slug:String!){
- question(titleSlug:$slug){
-  difficulty
- }
-}
-""",
-{
-"slug":slug
-}
-)
-
-
-    return (
-        result
-        .get("data",{})
-        .get("question",{})
-        .get("difficulty","unknown")
-        .lower()
-    )
-
-
-
-# ----------------------------
-# WRITE FILES
-# ----------------------------
-
-
-for sub in accepted:
-
-
-    title=sub["title"]
-    slug=sub["titleSlug"]
-    sid=sub["id"]
-
+    title=s["title"]
+    slug=s["titleSlug"]
+    sid=s["id"]
 
     code,runtime=get_code(sid)
 
-
     if not code:
-
         print(
-            "No code:",
-            title
+        "Skipped:",
+        title
         )
-
         continue
 
 
+    diff=difficulty(slug)
 
-    difficulty=get_difficulty(slug)
+    folder=f"leetcode/{diff}"
+    os.makedirs(folder,exist_ok=True)
 
-
-    folder=f"leetcode/{difficulty}"
-
-    os.makedirs(
-        folder,
-        exist_ok=True
-    )
+    path=f"{folder}/{clean(title)}.sql"
 
 
-    filepath=f"{folder}/{clean(title)}.sql"
+    if slug not in meta:
+        meta[slug]={
+        "first_seen":now()
+        }
 
 
-    content=f"""-- {title}
--- https://leetcode.com/problems/{slug}
--- difficulty: {difficulty}
--- synced: {now()}
--- runtime: {runtime}
+    content=[
+    f"-- {title}",
+    f"-- https://leetcode.com/problems/{slug}",
+    f"-- difficulty: {diff}",
+    f"-- first_seen: {meta[slug]['first_seen']}"
+    ]
 
+    if runtime:
+        content.append(
+        f"-- runtime: {runtime}"
+        )
 
-{code}
-"""
+    content.append("")
+    content.append(code)
+
+    new="\n".join(content)
 
 
     old=""
 
-    if os.path.exists(filepath):
-
-        with open(filepath,"r",encoding="utf8") as f:
-            old=f.read()
+    if os.path.exists(path):
+        old=open(path,encoding="utf8").read()
 
 
-
-    if old != content:
-
-        with open(filepath,"w",encoding="utf8") as f:
-            f.write(content)
-
+    if old!=new:
+        open(
+        path,
+        "w",
+        encoding="utf8"
+        ).write(new)
 
         print(
-            "Updated:",
-            title
+        "Updated:",
+        title
         )
 
 
-
-# ----------------------------
 # COUNT FILES
-# ----------------------------
-
 
 stats={
 "easy":0,
 "medium":0,
 "hard":0
 }
-
-
 
 for d in stats:
 
@@ -296,29 +244,28 @@ for d in stats:
     if os.path.exists(folder):
 
         stats[d]=len(
-            [
-            f for f in os.listdir(folder)
-            if f.endswith(".sql")
-            ]
+        [
+        x for x in os.listdir(folder)
+        if x.endswith(".sql")
+        ]
         )
 
 
 stats["total"]=sum(stats.values())
-
 stats["last_updated"]=now()
 
 
+json.dump(
+meta,
+open(META,"w"),
+indent=2
+)
 
-with open(
-"leetcode_stats.json",
-"w"
-) as f:
-
-    json.dump(
-        stats,
-        f,
-        indent=2
-    )
+json.dump(
+stats,
+open("leetcode_stats.json","w"),
+indent=2
+)
 
 
 print("\nSync complete")
