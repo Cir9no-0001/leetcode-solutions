@@ -8,27 +8,21 @@ on:
 permissions:
   contents: write
 
-
 jobs:
   sync:
-
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v4
-
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-
       - name: Install dependencies
         run: pip install requests
-
 
       - name: Run sync
         run: python sync.py
@@ -36,19 +30,17 @@ jobs:
           LEETCODE_USERNAME: ${{ secrets.LEETCODE_USERNAME }}
           LEETCODE_SESSION: ${{ secrets.LEETCODE_SESSION }}
 
-
       - name: Check changes
         run: |
           git status
           git diff --stat
-
 
       - name: Commit changes
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git add leetcode/ leetcode_stats.json README.md leetcode_meta.json
+          git add leetcode/ leetcode_stats.json README.md leetcode_meta.json leetcode_notes.json
 
           if git diff --cached --quiet; then
             echo "No changes to commit"
