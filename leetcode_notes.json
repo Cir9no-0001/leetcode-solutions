@@ -30,7 +30,7 @@
     "notes": ""
   },
   "department-top-three-salaries": {
-    "notes": "Hint: CTE + inner join + dense_rank with partition to rank salary"
+    "notes": "Hint: CTE + inner join + dense_rank with partition to rank"
   },
   "swap-sex-of-employees": {
     "notes": ""
