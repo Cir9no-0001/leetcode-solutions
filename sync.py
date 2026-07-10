@@ -5,15 +5,19 @@ import json
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+
 LOCAL_TZ = ZoneInfo("America/Toronto")
 
 META_FILE = "leetcode_meta.json"
 
+
 username = os.environ.get("LEETCODE_USERNAME")
 session = os.environ.get("LEETCODE_SESSION")
 
+
 if not username or not session:
     raise Exception("Missing LeetCode credentials")
+
 
 headers = {
     "cookie": f"LEETCODE_SESSION={session}",
@@ -21,27 +25,38 @@ headers = {
     "content-type": "application/json"
 }
 
+
+
 def now():
     return datetime.now(LOCAL_TZ).strftime(
         "%Y-%m-%d %H:%M:%S %Z"
     )
 
 
+
 def post(query):
+
     try:
+
         response = requests.post(
             "https://leetcode.com/graphql",
             json=query,
             headers=headers,
             timeout=10
         )
+
         return response.json()
 
     except Exception as e:
+
         print("Request failed:", e)
+
         return {}
 
+
+
 def clean(name):
+
     return (
         re.sub(r"[^a-zA-Z0-9\- ]", "", name)
         .lower()
@@ -51,9 +66,12 @@ def clean(name):
 
 
 def extract_notes(content):
+
     lines = content.splitlines()
+
     start = None
     end = None
+
 
     for i, line in enumerate(lines):
 
@@ -65,20 +83,28 @@ def extract_notes(content):
 
 
     if start is not None and end is not None:
+
         return lines[start:end + 1]
+
+
     return None
+
 
 
 if os.path.exists(META_FILE):
 
     with open(META_FILE, "r", encoding="utf-8") as f:
+
         meta = json.load(f)
 
 else:
+
     meta = {}
 
 
+
 query = {
+
     "query": """
     query recentAcSubmissions($username:String!) {
       recentAcSubmissionList(username:$username) {
@@ -88,13 +114,17 @@ query = {
       }
     }
     """,
+
     "variables": {
         "username": username
     }
+
 }
 
 
+
 response = post(query)
+
 
 
 subs = (
@@ -103,18 +133,27 @@ subs = (
     .get("recentAcSubmissionList", [])
 )
 
+
+
 if not subs:
+
     raise Exception("No submissions returned")
 
+
+
 difficulty_cache = {}
+
+
 
 def get_difficulty(slug):
 
     if slug in difficulty_cache:
+
         return difficulty_cache[slug]
 
 
     response = post({
+
         "query": """
         query questionData($titleSlug:String!) {
           question(titleSlug:$titleSlug) {
@@ -122,27 +161,39 @@ def get_difficulty(slug):
           }
         }
         """,
+
         "variables": {
+
             "titleSlug": slug
+
         }
+
     })
 
+
     difficulty = (
+
         response
         .get("data", {})
         .get("question", {})
         .get("difficulty", "unknown")
         .lower()
+
     )
 
 
     difficulty_cache[slug] = difficulty
 
+
     return difficulty
+
+
 
 def get_submission(submission_id):
 
-    detail = post({
+
+    response = post({
+
         "query": """
         query submissionDetails($submissionId:Int!) {
           submissionDetails(submissionId:$submissionId) {
@@ -151,75 +202,108 @@ def get_submission(submission_id):
           }
         }
         """,
+
         "variables": {
+
             "submissionId": int(submission_id)
+
         }
+
     })
 
 
+
+    if "errors" in response:
+
+        print(
+            f"LeetCode API error for {submission_id}:",
+            response["errors"]
+        )
+
+        return {
+            "code": None,
+            "runtime": None
+        }
+
+
+
     result = (
-        detail
+
+        response
         .get("data", {})
-        .get("submissionDetails", {})
+        .get("submissionDetails")
+
     )
 
 
+
+    if not result:
+
+        print(
+            f"No submission details found for {submission_id}"
+        )
+
+        return {
+
+            "code": None,
+            "runtime": None
+
+        }
+
+
+
     return {
+
         "code": result.get("code"),
+
         "runtime": result.get("runtime")
+
     }
 
+
+
+
 stats = {
+
     "easy": 0,
+
     "medium": 0,
+
     "hard": 0,
+
     "total": 0,
+
     "last_updated": now()
+
 }
 
 
 
 for submission in subs:
 
+
     title = submission["title"]
+
     slug = submission["titleSlug"]
+
+    submission_id = submission["id"]
+
 
 
     difficulty = get_difficulty(slug)
 
-    data = get_submission(submission["id"])
+
+
+    data = get_submission(submission_id)
+
+
 
     code = data["code"]
+
     runtime = data["runtime"]
 
 
 
-    folder = f"leetcode/{difficulty}"
-
-    os.makedirs(folder, exist_ok=True)
-
-
-    file_path = (
-        f"{folder}/{clean(title)}.sql"
-    )
-
-
-
-    old_content = ""
-
-    old_notes = None
-
-
-    if os.path.exists(file_path):
-
-        with open(file_path, "r", encoding="utf-8") as f:
-            old_content = f.read()
-
-        old_notes = extract_notes(old_content)
-
-
-
-    # Never destroy files if API fails
     if not code:
 
         print(
@@ -230,10 +314,50 @@ for submission in subs:
 
 
 
+    folder = f"leetcode/{difficulty}"
+
+
+    os.makedirs(
+        folder,
+        exist_ok=True
+    )
+
+
+
+    file_path = (
+
+        f"{folder}/{clean(title)}.sql"
+
+    )
+
+
+
+    old_content = ""
+
+    old_notes = None
+
+
+
+    if os.path.exists(file_path):
+
+
+        with open(file_path, "r", encoding="utf-8") as f:
+
+            old_content = f.read()
+
+
+
+        old_notes = extract_notes(old_content)
+
+
+
     if slug not in meta:
 
+
         meta[slug] = {
+
             "first_seen": now()
+
         }
 
 
@@ -245,8 +369,11 @@ for submission in subs:
     content = [
 
         f"-- {title}",
+
         f"-- https://leetcode.com/problems/{slug}",
+
         f"-- difficulty: {difficulty}",
+
         f"-- first_seen: {first_seen}"
 
     ]
@@ -254,29 +381,42 @@ for submission in subs:
 
 
     if runtime:
+
         content.append(
+
             f"-- runtime: {runtime}"
+
         )
 
 
+
     content.append("")
+
 
 
     if old_notes:
 
         content.extend(old_notes)
 
+
     else:
 
         content.extend([
+
             "-- NOTES START",
+
             "-- write your notes here",
+
             "-- NOTES END"
+
         ])
 
 
+
     content.append("")
+
     content.append(code)
+
 
 
     new_content = "\n".join(content)
@@ -285,38 +425,80 @@ for submission in subs:
 
     if new_content != old_content:
 
+
         with open(file_path, "w", encoding="utf-8") as f:
+
             f.write(new_content)
 
-for difficulty in ["easy", "medium", "hard"]:
+
+
+for difficulty in [
+
+    "easy",
+
+    "medium",
+
+    "hard"
+
+]:
+
+
     folder = f"leetcode/{difficulty}"
 
+
     if os.path.exists(folder):
+
+
         stats[difficulty] = len(
+
             [
+
                 file
+
                 for file in os.listdir(folder)
+
                 if file.endswith(".sql")
+
             ]
+
         )
+
+
     else:
+
         stats[difficulty] = 0
 
 
+
 stats["total"] = (
+
     stats["easy"]
+
     + stats["medium"]
+
     + stats["hard"]
+
 )
 
 
+
 with open(META_FILE, "w", encoding="utf-8") as f:
-    json.dump(meta, f, indent=2)
+
+    json.dump(
+        meta,
+        f,
+        indent=2
+    )
 
 
 
 with open("leetcode_stats.json", "w", encoding="utf-8") as f:
-    json.dump(stats, f, indent=2)
+
+    json.dump(
+        stats,
+        f,
+        indent=2
+    )
 
 
 
@@ -343,7 +525,9 @@ Auto-generated via GitHub Actions.
 """
 
 
+
 with open("README.md", "w", encoding="utf-8") as f:
+
     f.write(readme)
 
 
