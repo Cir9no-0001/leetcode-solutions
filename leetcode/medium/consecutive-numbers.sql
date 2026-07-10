@@ -4,10 +4,6 @@
 -- first_seen: 2026-07-08 02:38:05 EDT
 -- runtime: 685
 
--- NOTES START
--- Hint: Simulate a full join using union, use and in the where query to filter nulls, probably a better solution though :<
--- NOTES END
-
 with bogus as(
     select l.num, k.num as knum, j.num as jnum
     from Logs l

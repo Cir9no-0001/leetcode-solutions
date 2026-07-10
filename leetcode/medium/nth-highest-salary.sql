@@ -4,10 +4,6 @@
 -- first_seen: 2026-07-05 20:39:59 EDT
 -- runtime: 437
 
--- NOTES START
--- Hint: deterministic function, 0-based array-like indexing
--- NOTES END
-
 CREATE FUNCTION getNthHighestSalary(N INT) 
 RETURNS INT
 deterministic

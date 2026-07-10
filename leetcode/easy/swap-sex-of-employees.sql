@@ -4,10 +4,6 @@
 -- first_seen: 2026-07-08 02:38:06 EDT
 -- runtime: 247
 
--- NOTES START
--- write your notes here
--- NOTES END
-
 update Salary s
 set s.sex = case
     when s.sex ='m' then 'f'

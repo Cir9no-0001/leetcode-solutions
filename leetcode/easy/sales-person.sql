@@ -4,10 +4,6 @@
 -- first_seen: 2026-07-08 02:38:07 EDT
 -- runtime: 1346
 
--- NOTES START
--- write your notes here
--- NOTES END
-
 select s.name
 from SalesPerson s
 left join Orders o on s.sales_id = o.sales_id

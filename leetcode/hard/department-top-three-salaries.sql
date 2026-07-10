@@ -4,10 +4,6 @@
 -- first_seen: 2026-07-08 02:38:05 EDT
 -- runtime: 929
 
--- NOTES START
--- Hint: watch the naming, just another easy CTE problem
--- NOTES END
-
 with cte_rank as(
     select
     e.name as 'Employee',

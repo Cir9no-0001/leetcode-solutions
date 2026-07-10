@@ -4,10 +4,6 @@
 -- first_seen: 2026-07-05 20:40:02 EDT
 -- runtime: 455
 
--- NOTES START
--- write your notes here
--- NOTES END
-
 # Write your MySQL query statement below
 Select c.name
 from Customer c

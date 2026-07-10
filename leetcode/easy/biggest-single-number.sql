@@ -4,10 +4,6 @@
 -- first_seen: 2026-07-09 04:53:51 EDT
 -- runtime: 417
 
--- NOTES START
--- write your notes here
--- NOTES END
-
 select(
     select m.num
     from MyNumbers m

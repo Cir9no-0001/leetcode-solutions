@@ -4,10 +4,6 @@
 -- first_seen: 2026-07-05 22:27:45 EDT
 -- runtime: 600
 
--- NOTES START
--- Hint: CTE for salary rankings, filter for rank 1 of each dense_rank partition in CTE
--- NOTES END
-
 with Ranks as (
     select
         d.name as Department, 

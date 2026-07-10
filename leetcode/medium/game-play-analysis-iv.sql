@@ -4,10 +4,6 @@
 -- first_seen: 2026-07-09 21:20:34 EDT
 -- runtime: 526
 
--- NOTES START
--- Hint: CTE for initial logins, inner join using pid, calculate with case and datediff then round to two decimals
--- NOTES END
-
 with initial as(
     select a.player_id, min(a.event_date) as first_log
     from Activity a

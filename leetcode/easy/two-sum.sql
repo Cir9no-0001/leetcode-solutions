@@ -4,10 +4,6 @@
 -- first_seen: 2026-07-08 03:23:37 EDT
 -- runtime: 3
 
--- NOTES START
--- write your notes here
--- NOTES END
-
 class Solution:
     def twoSum(self, nums: List[int], target: int) -> List[int]:
         numMap = {}

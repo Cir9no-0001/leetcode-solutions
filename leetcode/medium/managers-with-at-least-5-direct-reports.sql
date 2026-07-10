@@ -4,10 +4,6 @@
 -- first_seen: 2026-07-09 05:18:24 EDT
 -- runtime: 382
 
--- NOTES START
--- Hint: inner join, use id and not name when grouping
--- NOTES END
-
 Select e.name
 from Employee e
 inner join Employee a
