@@ -82,6 +82,7 @@ query = {
     "query": """
     query recentAcSubmissions($username:String!) {
       recentAcSubmissionList(username:$username) {
+        id
         title
         titleSlug
       }
@@ -139,48 +140,7 @@ def get_difficulty(slug):
 
     return difficulty
 
-def get_submission(slug):
-
-    response = post({
-        "query": """
-        query submissionList($offset:Int!, $limit:Int!, $questionSlug:String!) {
-          submissionList(
-            offset:$offset,
-            limit:$limit,
-            questionSlug:$questionSlug
-          ) {
-            submissions {
-              id
-            }
-          }
-        }
-        """,
-        "variables": {
-            "offset": 0,
-            "limit": 10,
-            "questionSlug": slug
-        }
-    })
-
-
-    submissions = (
-        response
-        .get("data", {})
-        .get("submissionList", {})
-        .get("submissions", [])
-    )
-
-
-    if not submissions:
-        print(f"No submission ID found for {slug}")
-        return {
-            "code": None,
-            "runtime": None
-        }
-
-
-    submission_id = submissions[0]["id"]
-
+def get_submission(submission_id):
 
     detail = post({
         "query": """
@@ -227,7 +187,7 @@ for submission in subs:
 
     difficulty = get_difficulty(slug)
 
-    data = get_submission(slug)
+    data = get_submission(submission["id"])
 
     code = data["code"]
     runtime = data["runtime"]
