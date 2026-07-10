@@ -3,6 +3,8 @@
 -- difficulty: medium
 -- first_seen: 2026-07-05 20:39:59 EDT
 -- runtime: 437
+--
+-- Notes stored in leetcode_notes.json
 
 CREATE FUNCTION getNthHighestSalary(N INT) 
 RETURNS INT

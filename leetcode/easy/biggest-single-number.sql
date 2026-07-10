@@ -3,6 +3,8 @@
 -- difficulty: easy
 -- first_seen: 2026-07-09 04:53:51 EDT
 -- runtime: 417
+--
+-- Notes stored in leetcode_notes.json
 
 select(
     select m.num

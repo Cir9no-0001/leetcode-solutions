@@ -3,6 +3,8 @@
 -- difficulty: easy
 -- first_seen: 2026-07-08 03:16:17 EDT
 -- runtime: 289
+--
+-- Notes stored in leetcode_notes.json
 
 select t.x, t.y, t.z, 
 case

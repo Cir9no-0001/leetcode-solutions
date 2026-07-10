@@ -3,6 +3,8 @@
 -- difficulty: medium
 -- first_seen: 2026-07-09 05:18:24 EDT
 -- runtime: 382
+--
+-- Notes stored in leetcode_notes.json
 
 Select e.name
 from Employee e
