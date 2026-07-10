@@ -5,7 +5,7 @@
 -- runtime: 526
 
 -- NOTES START
--- write your notes here
+-- Hint: CTE for initial logins, inner join using pid, calculate with case and datediff then round to two decimals
 -- NOTES END
 
 with initial as(
