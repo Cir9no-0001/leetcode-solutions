@@ -2,7 +2,7 @@
 -- https://leetcode.com/problems/consecutive-numbers
 -- difficulty: medium
 -- first_seen: 2026-07-08 02:38:05 EDT
--- runtime: 685
+-- runtime: 685ms
 --
 -- Notes stored in leetcode_notes.json
 

@@ -2,7 +2,7 @@
 -- https://leetcode.com/problems/biggest-single-number
 -- difficulty: easy
 -- first_seen: 2026-07-09 04:53:51 EDT
--- runtime: 417
+-- runtime: 417ms
 --
 -- Notes stored in leetcode_notes.json
 

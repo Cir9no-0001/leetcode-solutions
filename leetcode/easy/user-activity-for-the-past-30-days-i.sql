@@ -2,7 +2,7 @@
 -- https://leetcode.com/problems/user-activity-for-the-past-30-days-i
 -- difficulty: easy
 -- first_seen: 2026-07-11 07:51:00 EDT
--- runtime: 444
+-- runtime: 444ms
 --
 -- Notes stored in leetcode_notes.json
 

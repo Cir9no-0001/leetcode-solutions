@@ -2,7 +2,7 @@
 -- https://leetcode.com/problems/sales-analysis-iii
 -- difficulty: easy
 -- first_seen: 2026-07-10 06:49:35 EDT
--- runtime: 1208
+-- runtime: 1208ms
 --
 -- Notes stored in leetcode_notes.json
 

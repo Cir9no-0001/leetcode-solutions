@@ -2,7 +2,7 @@
 -- https://leetcode.com/problems/managers-with-at-least-5-direct-reports
 -- difficulty: medium
 -- first_seen: 2026-07-09 05:18:24 EDT
--- runtime: 382
+-- runtime: 382ms
 --
 -- Notes stored in leetcode_notes.json
 

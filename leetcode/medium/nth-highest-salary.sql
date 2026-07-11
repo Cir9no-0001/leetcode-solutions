@@ -2,7 +2,7 @@
 -- https://leetcode.com/problems/nth-highest-salary
 -- difficulty: medium
 -- first_seen: 2026-07-05 20:39:59 EDT
--- runtime: 437
+-- runtime: 437ms
 --
 -- Notes stored in leetcode_notes.json
 

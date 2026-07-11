@@ -2,7 +2,7 @@
 -- https://leetcode.com/problems/rank-scores
 -- difficulty: medium
 -- first_seen: 2026-07-05 20:53:53 EDT
--- runtime: 304
+-- runtime: 304ms
 --
 -- Notes stored in leetcode_notes.json
 

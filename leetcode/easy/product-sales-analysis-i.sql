@@ -2,7 +2,7 @@
 -- https://leetcode.com/problems/product-sales-analysis-i
 -- difficulty: easy
 -- first_seen: 2026-07-10 00:35:07 EDT
--- runtime: 1090
+-- runtime: 1090ms
 --
 -- Notes stored in leetcode_notes.json
 

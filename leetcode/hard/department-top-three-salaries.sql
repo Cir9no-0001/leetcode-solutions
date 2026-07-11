@@ -2,7 +2,7 @@
 -- https://leetcode.com/problems/department-top-three-salaries
 -- difficulty: hard
 -- first_seen: 2026-07-08 02:38:05 EDT
--- runtime: 929
+-- runtime: 929ms
 --
 -- Notes stored in leetcode_notes.json
 

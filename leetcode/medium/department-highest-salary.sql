@@ -2,7 +2,7 @@
 -- https://leetcode.com/problems/department-highest-salary
 -- difficulty: medium
 -- first_seen: 2026-07-05 22:27:45 EDT
--- runtime: 600
+-- runtime: 600ms
 --
 -- Notes stored in leetcode_notes.json
 

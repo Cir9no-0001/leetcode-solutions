@@ -2,7 +2,7 @@
 -- https://leetcode.com/problems/actors-and-directors-who-cooperated-at-least-three-times
 -- difficulty: easy
 -- first_seen: 2026-07-09 02:31:14 EDT
--- runtime: 367
+-- runtime: 367ms
 --
 -- Notes stored in leetcode_notes.json
 

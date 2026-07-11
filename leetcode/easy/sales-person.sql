@@ -2,7 +2,7 @@
 -- https://leetcode.com/problems/sales-person
 -- difficulty: easy
 -- first_seen: 2026-07-08 02:38:07 EDT
--- runtime: 1346
+-- runtime: 1346ms
 --
 -- Notes stored in leetcode_notes.json
 
