@@ -1,6 +1,6 @@
 # LeetCode Tracker
 
-Last updated: 2026-07-11 07:51:09 EDT
+Last updated: 2026-07-11 07:52:52 EDT
 
 | Difficulty | Count |
 |---|---:|
@@ -15,7 +15,6 @@ Last updated: 2026-07-11 07:51:09 EDT
 - leetcode/medium/
 - leetcode/hard/
 
-Notes:
-- Personal notes are stored permanently in leetcode_notes.json
+Notes feature currently down :<
 
 Automatically synced using GitHub Actions.
