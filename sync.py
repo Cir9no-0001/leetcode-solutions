@@ -289,7 +289,7 @@ for submission in subs:
 
     if runtime:
         content.append(
-            f"-- runtime: {runtime}"
+            f"-- runtime: {runtime}ms"
         )
 
 
