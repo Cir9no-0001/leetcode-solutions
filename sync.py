@@ -388,8 +388,7 @@ Last updated: {stats["last_updated"]}
 - leetcode/medium/
 - leetcode/hard/
 
-Notes:
-- Personal notes are stored permanently in leetcode_notes.json
+Notes feature currently down :<
 
 Automatically synced using GitHub Actions.
 """
