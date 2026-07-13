@@ -1,13 +1,13 @@
 # LeetCode Tracker
 
-Last updated: 2026-07-12 23:33:14 EDT
+Last updated: 2026-07-12 23:52:27 EDT
 
 | Difficulty | Count |
 |---|---:|
 | Easy | 26 |
-| Medium | 10 |
+| Medium | 11 |
 | Hard | 1 |
-| Total | 37 |
+| Total | 38 |
 
 ## Structure
 
