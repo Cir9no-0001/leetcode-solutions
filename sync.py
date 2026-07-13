@@ -59,26 +59,17 @@ def clean(name):
         .replace(" ", "-")
     )
 
-
-# Load metadata
-
 if os.path.exists(META_FILE):
     with open(META_FILE, "r", encoding="utf-8") as f:
         meta = json.load(f)
 else:
     meta = {}
 
-
-# Load notes
-
 if os.path.exists(NOTES_FILE):
     with open(NOTES_FILE, "r", encoding="utf-8") as f:
         notes = json.load(f)
 else:
     notes = {}
-
-
-# Get recent accepted submissions
 
 response = post({
     "query": """
@@ -111,11 +102,7 @@ print("\nAccepted submissions:")
 for s in subs:
     print("-", s["title"])
 
-
-# Difficulty lookup
-
 difficulty_cache = {}
-
 
 def get_difficulty(slug):
 
@@ -146,9 +133,6 @@ def get_difficulty(slug):
     difficulty_cache[slug] = difficulty
 
     return difficulty
-
-
-# Submission code lookup
 
 def get_submission(slug):
 
@@ -231,7 +215,6 @@ def get_submission(slug):
     }
 
 
-# Sync solutions
 
 for submission in subs:
 
@@ -319,9 +302,6 @@ for submission in subs:
         print("Updated:", title)
 
 
-
-# Count actual files
-
 stats = {
     "easy": 0,
     "medium": 0,
@@ -354,8 +334,6 @@ stats["total"] = (
 
 
 
-# Save metadata
-
 with open(META_FILE, "w", encoding="utf-8") as f:
     json.dump(meta, f, indent=2)
 
@@ -368,9 +346,6 @@ with open("leetcode_stats.json", "w", encoding="utf-8") as f:
     json.dump(stats, f, indent=2)
 
 
-
-# README
-
 readme = f"""# LeetCode Tracker
 
 Last updated: {stats["last_updated"]}
@@ -382,15 +357,13 @@ Last updated: {stats["last_updated"]}
 | Hard | {stats["hard"]} |
 | Total | {stats["total"]} |
 
-## Structure
+## Folder Structure
 
 - leetcode/easy/
 - leetcode/medium/
 - leetcode/hard/
 
-Notes feature currently down :<
-
-Automatically synced using GitHub Actions.
+Notes feature in progress :<
 """
 
 
