@@ -6,6 +6,7 @@
 -- Notes:
 -- Hint: CTE + inner join + dense_rank with partition to rank
 
+
 with cte_rank as(
     select
     e.name as 'Employee',
