@@ -8,6 +8,7 @@
 
 
 
+
 with bogus as(
     select l.num, k.num as knum, j.num as jnum
     from Logs l

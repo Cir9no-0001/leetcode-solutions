@@ -8,6 +8,7 @@
 
 
 
+
 CREATE FUNCTION getNthHighestSalary(N INT) 
 RETURNS INT
 deterministic
