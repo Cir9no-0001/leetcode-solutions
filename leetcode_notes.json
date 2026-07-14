@@ -99,6 +99,6 @@
     "notes": ""
   },
   "immediate-food-delivery-ii": {
-    "notes": ""
+    "notes": "Hint: case to add to immediate orders, subquery to filter for first orders, don't use CTE"
   }
 }
