@@ -205,7 +205,7 @@ def get_submission(slug):
 
 def update_notes_in_files():
 
-    print("\nUpdating notes...")
+    print("\nUpdating notes from leetcode_notes.json...")
 
     for slug, data in notes.items():
 
@@ -225,41 +225,48 @@ def update_notes_in_files():
             with open(path, "r", encoding="utf-8") as f:
                 content = f.read()
 
-            if "-- Notes:" not in content:
-                print("Missing Notes section:", path)
-                continue
+            if "-- Notes:" in content:
+                before_notes = content.split("-- Notes:")[0]
+                notes_index = content.index("-- Notes:")
+                code_start = content.find("\n\n", notes_index)
+                if code_start != -1:
+                    code = content[code_start:]
+                else:
+                    code = ""
 
+            else:
 
-            before_notes = content.split("-- Notes:")[0]
+                lines = content.split("\n")
+                insert_position = 0
 
-            code_start = content.find(
-                "\n\n",
-                content.index("-- Notes:")
-            )
+                for i, line in enumerate(lines):
+                    if not line.startswith("--"):
+                        insert_position = i
+                        break
 
-            code = content[code_start:] if code_start != -1 else ""
-
+                before_notes = "\n".join(lines[:insert_position]) + "\n"
+                code = "\n".join(lines[insert_position:])
 
             new_content = before_notes + "-- Notes:\n"
+
 
             if note_text:
                 for line in note_text.split("\n"):
                     new_content += f"-- {line}\n"
+
             else:
                 new_content += "--\n"
-
             new_content += code
 
-
             if new_content != content:
-
                 with open(path, "w", encoding="utf-8") as f:
                     f.write(new_content)
-
                 print("Updated notes:", path)
 
-            break
+            else:
+                print("Already correct:", path)
 
+            break
 
         if not found:
             print("SQL file not found:", slug)
