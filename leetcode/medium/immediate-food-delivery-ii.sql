@@ -4,7 +4,7 @@
 -- first_seen: 2026-07-14 19:39:03 EDT
 -- runtime: 629ms
 -- Notes:
---
+-- Hint: case to add to immediate orders, subquery to filter for first orders, don't use CTE
 
 
 select

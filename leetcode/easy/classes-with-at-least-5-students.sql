@@ -11,6 +11,7 @@
 
 
 
+
 Select c.class
 from Courses c
 Group by c.class

@@ -9,6 +9,7 @@
 
 
 
+
 # Write your MySQL query statement below
 Select w.name, w.population, w.area
 from World w
