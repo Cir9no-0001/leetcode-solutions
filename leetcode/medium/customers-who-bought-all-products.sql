@@ -4,7 +4,8 @@
 -- first_seen: 2026-07-12 23:52:16 EDT
 -- runtime: 513ms
 --
--- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 select c.customer_id
 from Customer c

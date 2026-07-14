@@ -4,7 +4,8 @@
 -- first_seen: 2026-07-10 00:31:24 EDT
 -- runtime: 563ms
 --
--- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 with valid as (
     select distinct(i.pid), i.tiv_2016

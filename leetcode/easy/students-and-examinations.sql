@@ -4,7 +4,8 @@
 -- first_seen: 2026-07-12 23:07:02 EDT
 -- runtime: 858ms
 --
--- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 
 select 

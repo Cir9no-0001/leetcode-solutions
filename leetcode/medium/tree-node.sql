@@ -4,7 +4,8 @@
 -- first_seen: 2026-07-11 15:33:17 EDT
 -- runtime: 524ms
 --
--- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 select t.id,
 case

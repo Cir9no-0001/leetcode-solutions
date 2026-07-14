@@ -4,7 +4,8 @@
 -- first_seen: 2026-07-13 17:42:43 EDT
 -- runtime: 719ms
 --
--- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 select s.product_id, s.year as 'first_year', s.quantity, s.price
 from Sales s

@@ -4,7 +4,8 @@
 -- first_seen: 2026-07-09 21:20:34 EDT
 -- runtime: 526ms
 --
--- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 with initial as(
     select a.player_id, min(a.event_date) as first_log

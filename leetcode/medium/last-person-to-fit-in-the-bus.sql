@@ -4,7 +4,8 @@
 -- first_seen: 2026-07-14 14:26:55 EDT
 -- runtime: 756ms
 --
--- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 with temp as(
     select q.person_name, sum(q.weight) over (order by q.turn) as 'total_weight'

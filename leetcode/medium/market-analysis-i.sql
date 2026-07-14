@@ -4,7 +4,8 @@
 -- first_seen: 2026-07-14 11:53:25 EDT
 -- runtime: 1287ms
 --
--- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 select 
     u.user_id as 'buyer_id', 
