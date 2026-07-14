@@ -205,37 +205,40 @@ def get_submission(slug):
 
 def update_notes_in_files():
 
-    for root, _, files in os.walk("leetcode"):
+    print("\nUpdating notes...")
 
-        for file in files:
+    for slug, data in notes.items():
 
-            if not file.endswith(".sql"):
+        note_text = data.get("notes", "")
+
+        found = False
+
+        for difficulty in ["easy", "medium", "hard"]:
+
+            path = f"leetcode/{difficulty}/{slug}.sql"
+
+            if not os.path.exists(path):
                 continue
 
-            path = os.path.join(root, file)
-            slug = file[:-4]
-
-            if slug not in notes:
-                continue
-
-            note_text = notes[slug].get("notes", "")
+            found = True
 
             with open(path, "r", encoding="utf-8") as f:
                 content = f.read()
 
             if "-- Notes:" not in content:
+                print("Missing Notes section:", path)
                 continue
+
 
             before_notes = content.split("-- Notes:")[0]
 
-            notes_position = content.find("-- Notes:")
+            code_start = content.find(
+                "\n\n",
+                content.index("-- Notes:")
+            )
 
-            code_position = content.find("\n\n", notes_position)
+            code = content[code_start:] if code_start != -1 else ""
 
-            if code_position != -1:
-                code = content[code_position:]
-            else:
-                code = ""
 
             new_content = before_notes + "-- Notes:\n"
 
@@ -247,13 +250,20 @@ def update_notes_in_files():
 
             new_content += code
 
+
             if new_content != content:
 
                 with open(path, "w", encoding="utf-8") as f:
                     f.write(new_content)
 
-                print("Updated notes:", file)
+                print("Updated notes:", path)
 
+            break
+
+
+        if not found:
+            print("SQL file not found:", slug)
+            
 for submission in subs:
 
     title = submission["title"]
