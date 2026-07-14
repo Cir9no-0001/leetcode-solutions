@@ -6,10 +6,8 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 LOCAL_TZ = ZoneInfo("America/Toronto")
-
 META_FILE = "leetcode_meta.json"
 NOTES_FILE = "leetcode_notes.json"
-
 username = os.environ.get("LEETCODE_USERNAME")
 session = os.environ.get("LEETCODE_SESSION")
 
@@ -23,10 +21,8 @@ headers = {
     "user-agent": "Mozilla/5.0"
 }
 
-
 def now():
     return datetime.now(LOCAL_TZ).strftime("%Y-%m-%d %H:%M:%S %Z")
-
 
 def post(query):
     try:
@@ -37,16 +33,13 @@ def post(query):
             timeout=15
         )
         data = r.json()
-
         if "errors" in data:
             print("GRAPHQL ERROR:", data["errors"])
-
         return data
 
     except Exception as e:
         print("REQUEST ERROR:", e)
         return {}
-
 
 def clean(name):
     return (
@@ -85,17 +78,14 @@ response = post({
     }
 })
 
-
 subs = (
     response
     .get("data", {})
     .get("recentAcSubmissionList", [])
 )
 
-
 if not subs:
     raise Exception("No submissions returned")
-
 
 print("\nAccepted submissions:")
 
@@ -176,7 +166,6 @@ def get_submission(slug):
             "runtime": None
         }
 
-
     detail = post({
         "query": """
         query submissionDetails($submissionId:Int!){
@@ -214,7 +203,56 @@ def get_submission(slug):
         "runtime": result.get("runtime")
     }
 
+def update_notes_in_files():
 
+    for root, _, files in os.walk("leetcode"):
+
+        for file in files:
+
+            if not file.endswith(".sql"):
+                continue
+
+            path = os.path.join(root, file)
+            slug = file[:-4]
+
+            if slug not in notes:
+                continue
+
+            note_text = notes[slug].get("notes", "")
+
+            with open(path, "r", encoding="utf-8") as f:
+                content = f.read()
+
+            if "-- Notes:" not in content:
+                continue
+
+            before_notes = content.split("-- Notes:")[0]
+
+            notes_position = content.find("-- Notes:")
+
+            code_position = content.find("\n\n", notes_position)
+
+            if code_position != -1:
+                code = content[code_position:]
+            else:
+                code = ""
+
+            new_content = before_notes + "-- Notes:\n"
+
+            if note_text:
+                for line in note_text.split("\n"):
+                    new_content += f"-- {line}\n"
+            else:
+                new_content += "--\n"
+
+            new_content += code
+
+            if new_content != content:
+
+                with open(path, "w", encoding="utf-8") as f:
+                    f.write(new_content)
+
+                print("Updated notes:", file)
 
 for submission in subs:
 
@@ -233,23 +271,19 @@ for submission in subs:
     code = data["code"]
     runtime = data["runtime"]
 
-
     if not code:
         print("Skipped:", title)
         continue
-
 
     if slug not in meta:
         meta[slug] = {
             "first_seen": now()
         }
 
-
     if slug not in notes:
         notes[slug] = {
             "notes": ""
         }
-
 
     folder = f"leetcode/{difficulty}"
 
@@ -257,7 +291,6 @@ for submission in subs:
         folder,
         exist_ok=True
     )
-
 
     path = f"{folder}/{clean(title)}.sql"
 
@@ -269,16 +302,14 @@ for submission in subs:
         f"-- first_seen: {meta[slug]['first_seen']}"
     ]
 
-
     if runtime:
         content.append(
             f"-- runtime: {runtime}ms"
         )
 
-
-    content.append("--")
-    content.append("-- Notes:")
-
+    content.extend([
+        "-- Notes:"
+    ])
     if notes[slug]["notes"]:
         for line in notes[slug]["notes"].split("\n"):
             content.append(f"-- {line}")
@@ -290,10 +321,7 @@ for submission in subs:
         code
     ])
 
-
     new_content = "\n".join(content)
-
-
     old_content = ""
 
     if os.path.exists(path):
@@ -308,6 +336,7 @@ for submission in subs:
 
         print("Updated:", title)
 
+update_notes_in_files()
 
 stats = {
     "easy": 0,
@@ -316,7 +345,6 @@ stats = {
     "total": 0,
     "last_updated": now()
 }
-
 
 for difficulty in ["easy", "medium", "hard"]:
 
@@ -330,7 +358,6 @@ for difficulty in ["easy", "medium", "hard"]:
             if file.endswith(".sql")
         ])
 
-
 stats["total"] = (
     stats["easy"]
     +
@@ -339,19 +366,14 @@ stats["total"] = (
     stats["hard"]
 )
 
-
-
 with open(META_FILE, "w", encoding="utf-8") as f:
     json.dump(meta, f, indent=2)
-
 
 with open(NOTES_FILE, "w", encoding="utf-8") as f:
     json.dump(notes, f, indent=2)
 
-
 with open("leetcode_stats.json", "w", encoding="utf-8") as f:
     json.dump(stats, f, indent=2)
-
 
 readme = f"""# LeetCode Tracker
 
@@ -369,13 +391,9 @@ Last updated: {stats["last_updated"]}
 - leetcode/easy/
 - leetcode/medium/
 - leetcode/hard/
-
-Notes feature in progress :<
 """
-
 
 with open("README.md", "w", encoding="utf-8") as f:
     f.write(readme)
-
 
 print("\nSync complete")
