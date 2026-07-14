@@ -276,9 +276,16 @@ for submission in subs:
         )
 
 
+    content.append("--")
+    content.append("-- Notes:")
+
+    if notes[slug]["notes"]:
+        for line in notes[slug]["notes"].split("\n"):
+            content.append(f"-- {line}")
+    else:
+        content.append("--")
+
     content.extend([
-        "--",
-        "-- Notes stored in leetcode_notes.json",
         "",
         code
     ])
