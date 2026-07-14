@@ -84,7 +84,7 @@
     "notes": ""
   },
   "customers-who-bought-all-products": {
-    "notes": ""
+    "notes": "Hint: group by id, then use having and subquery counter"
   },
   "product-sales-analysis-iii": {
     "notes": ""
