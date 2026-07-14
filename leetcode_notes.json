@@ -72,7 +72,7 @@
     "notes": ""
   },
   "tree-node": {
-    "notes": ""
+    "notes": "Hint: use case and subquery to see if a node already exists as a p_id"
   },
   "reformat-department-table": {
     "notes": ""
