@@ -3,9 +3,6 @@
 -- difficulty: easy
 -- first_seen: 2026-07-09 04:53:51 EDT
 -- runtime: 417ms
---
--- Notes:
---
 
 select(
     select m.num
