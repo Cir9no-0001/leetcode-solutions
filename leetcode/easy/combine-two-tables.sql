@@ -5,7 +5,7 @@
 -- runtime: 414
 
 -- NOTES START
--- write your notes here
+-- Hint: left join
 -- NOTES END
 
 # Write your MySQL query statement below
