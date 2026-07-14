@@ -3,9 +3,9 @@
 -- difficulty: medium
 -- first_seen: 2026-07-14 11:53:25 EDT
 -- runtime: 1287ms
---
 -- Notes:
 --
+
 
 select 
     u.user_id as 'buyer_id', 

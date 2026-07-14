@@ -3,9 +3,9 @@
 -- difficulty: medium
 -- first_seen: 2026-07-12 23:52:16 EDT
 -- runtime: 513ms
---
 -- Notes:
 --
+
 
 select c.customer_id
 from Customer c

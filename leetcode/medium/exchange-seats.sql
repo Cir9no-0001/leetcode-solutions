@@ -3,9 +3,9 @@
 -- difficulty: medium
 -- first_seen: 2026-07-12 23:32:52 EDT
 -- runtime: 347ms
---
 -- Notes:
 --
+
 
 select 
     case

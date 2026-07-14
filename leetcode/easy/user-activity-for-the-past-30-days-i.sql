@@ -3,9 +3,9 @@
 -- difficulty: easy
 -- first_seen: 2026-07-11 07:51:00 EDT
 -- runtime: 444ms
---
 -- Notes:
 --
+
 
 select a.activity_date as day, count(distinct(user_id)) as active_users
 from Activity a

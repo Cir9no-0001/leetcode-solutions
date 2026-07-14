@@ -3,9 +3,9 @@
 -- difficulty: easy
 -- first_seen: 2026-07-11 23:36:28 EDT
 -- runtime: 470ms
---
 -- Notes:
 --
+
 
 select 
     d.id, 
