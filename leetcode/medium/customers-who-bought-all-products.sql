@@ -4,7 +4,7 @@
 -- first_seen: 2026-07-12 23:52:16 EDT
 -- runtime: 513ms
 -- Notes:
---
+-- Hint: group by id, then use having and subquery counter
 
 
 select c.customer_id
