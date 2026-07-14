@@ -4,7 +4,7 @@
 -- first_seen: 2026-07-11 15:33:17 EDT
 -- runtime: 524ms
 -- Notes:
---
+-- Hint: use case and subquery to see if a node already exists as a p_id
 
 
 select t.id,

@@ -7,6 +7,7 @@
 --
 
 
+
 with Ranks as (
     select
         d.name as Department, 
