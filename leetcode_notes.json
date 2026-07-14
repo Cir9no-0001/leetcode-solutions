@@ -3,7 +3,7 @@
     "notes": ""
   },
   "investments-in-2016": {
-    "notes": ""
+    "notes": "Hint: use CTE, concat subquery for location, use exclusive logic using count and group"
   },
   "game-play-analysis-iv": {
     "notes": ""
