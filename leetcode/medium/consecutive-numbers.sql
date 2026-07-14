@@ -5,6 +5,8 @@
 -- runtime: 685ms
 --
 -- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 with bogus as(
     select l.num, k.num as knum, j.num as jnum

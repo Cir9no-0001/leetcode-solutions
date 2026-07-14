@@ -5,6 +5,8 @@
 -- runtime: 462
 --
 -- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 # Write your MySQL query statement below
 Select o.customer_number

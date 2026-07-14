@@ -5,6 +5,8 @@
 -- runtime: 289ms
 --
 -- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 select t.x, t.y, t.z, 
 case

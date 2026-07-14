@@ -5,6 +5,8 @@
 -- runtime: 3ms
 --
 -- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 class Solution:
     def twoSum(self, nums: List[int], target: int) -> List[int]:

@@ -5,6 +5,8 @@
 -- runtime: 247ms
 --
 -- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 update Salary s
 set s.sex = case

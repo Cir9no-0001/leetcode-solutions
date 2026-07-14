@@ -5,6 +5,8 @@
 -- runtime: 311
 --
 -- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 Select c.class
 from Courses c

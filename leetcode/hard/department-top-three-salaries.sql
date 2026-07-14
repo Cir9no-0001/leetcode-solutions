@@ -5,6 +5,8 @@
 -- runtime: 929ms
 --
 -- Notes stored in leetcode_notes.json
+-- Notes:
+-- Hint: CTE + inner join + dense_rank with partition to rank
 
 with cte_rank as(
     select

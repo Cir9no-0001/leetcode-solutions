@@ -5,6 +5,8 @@
 -- runtime: 1346ms
 --
 -- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 select s.name
 from SalesPerson s

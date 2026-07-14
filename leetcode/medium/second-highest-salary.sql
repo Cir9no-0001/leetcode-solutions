@@ -5,6 +5,8 @@
 -- runtime: 248ms
 --
 -- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 Select(
     Select distinct(e.salary) 

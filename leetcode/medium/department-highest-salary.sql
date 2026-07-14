@@ -5,6 +5,8 @@
 -- runtime: 600ms
 --
 -- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 with Ranks as (
     select

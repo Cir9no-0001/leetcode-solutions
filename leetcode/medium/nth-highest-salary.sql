@@ -5,6 +5,8 @@
 -- runtime: 437ms
 --
 -- Notes stored in leetcode_notes.json
+-- Notes:
+--
 
 CREATE FUNCTION getNthHighestSalary(N INT) 
 RETURNS INT
