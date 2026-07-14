@@ -3,8 +3,6 @@
 -- difficulty: hard
 -- first_seen: 2026-07-08 02:38:05 EDT
 -- runtime: 929ms
---
--- Notes stored in leetcode_notes.json
 -- Notes:
 -- Hint: CTE + inner join + dense_rank with partition to rank
 
