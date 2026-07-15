@@ -9,11 +9,6 @@
 --
 
 
-
-
-
-
-
 # Write your MySQL query statement below
 Select o.customer_number
 from Orders o

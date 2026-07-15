@@ -9,11 +9,6 @@
 --
 
 
-
-
-
-
-
 select s.name
 from SalesPerson s
 left join Orders o on s.sales_id = o.sales_id

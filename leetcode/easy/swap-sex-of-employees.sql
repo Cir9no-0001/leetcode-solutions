@@ -9,11 +9,6 @@
 --
 
 
-
-
-
-
-
 update Salary s
 set s.sex = case
     when s.sex ='m' then 'f'
