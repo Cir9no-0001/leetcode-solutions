@@ -4,7 +4,6 @@
 -- first_seen: 2026-07-05 20:40:06 EDT
 -- runtime: 383ms
 
-# Write your MySQL query statement below
 Select p.email as Email
 from Person p
 inner join (
