@@ -27,7 +27,7 @@
     "notes": ""
   },
   "consecutive-numbers": {
-    "notes": ""
+    "notes": "Hint: CTE full join using union"
   },
   "department-top-three-salaries": {
     "notes": "Hint: CTE + inner join + dense_rank with partition to rank"
