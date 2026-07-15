@@ -12,6 +12,7 @@
 
 
 
+
 select t.x, t.y, t.z, 
 case
     when t.x+t.y>t.z and t.x+t.z>t.y and t.z+t.y>t.x 
