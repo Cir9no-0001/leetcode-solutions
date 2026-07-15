@@ -4,10 +4,6 @@
 -- first_seen: 2026-07-05 20:40:05 EDT
 -- runtime: 515
 
--- NOTES START
--- write your notes here
--- NOTES END
-
 Select w.id as Id
 from Weather w
 inner join Weather q
