@@ -228,9 +228,12 @@ def update_notes_in_files():
             if "-- Notes:" in content:
                 before_notes = content.split("-- Notes:")[0]
                 notes_index = content.index("-- Notes:")
+
                 code_start = content.find("\n\n", notes_index)
+
                 if code_start != -1:
-                    code = content[code_start:]
+                    code = content[code_start:].lstrip("\n")
+                    code = "\n\n" + code
                 else:
                     code = ""
 
