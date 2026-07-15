@@ -2,13 +2,8 @@
 -- https://leetcode.com/problems/customers-who-never-order
 -- difficulty: easy
 -- first_seen: 2026-07-05 20:40:06 EDT
--- runtime: 576
+-- runtime: 576ms
 
--- NOTES START
--- write your notes here
--- NOTES END
-
-# Write your MySQL query statement below
 Select c.name as Customers
 From Customers c
 left join orders o
