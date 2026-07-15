@@ -11,6 +11,7 @@
 
 
 
+
 Select(
     Select distinct(e.salary) 
     from Employee e

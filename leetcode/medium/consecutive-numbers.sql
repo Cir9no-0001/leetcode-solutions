@@ -4,7 +4,8 @@
 -- first_seen: 2026-07-08 02:38:05 EDT
 -- runtime: 685ms
 -- Notes:
---
+-- Hint: CTE full join using union
+
 
 
 
