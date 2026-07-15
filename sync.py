@@ -327,6 +327,7 @@ for submission in subs:
     content.extend([
         "-- Notes:"
     ])
+
     if notes[slug]["notes"]:
         for line in notes[slug]["notes"].split("\n"):
             content.append(f"-- {line}")
