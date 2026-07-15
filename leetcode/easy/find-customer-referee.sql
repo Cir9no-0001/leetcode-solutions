@@ -4,7 +4,6 @@
 -- first_seen: 2026-07-05 20:40:02 EDT
 -- runtime: 455
 
-# Write your MySQL query statement below
 Select c.name
 from Customer c
 left join Customer b
