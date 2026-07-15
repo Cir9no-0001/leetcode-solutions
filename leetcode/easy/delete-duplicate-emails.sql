@@ -2,13 +2,8 @@
 -- https://leetcode.com/problems/delete-duplicate-emails
 -- difficulty: easy
 -- first_seen: 2026-07-05 20:40:05 EDT
--- runtime: 814
+-- runtime: 814ms
 
--- NOTES START
--- write your notes here
--- NOTES END
-
-# Write your MySQL query statement below
 Delete d
 from Person p
 inner join Person d
