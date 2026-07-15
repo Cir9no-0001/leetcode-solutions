@@ -2,11 +2,7 @@
 -- https://leetcode.com/problems/employee-bonus
 -- difficulty: easy
 -- first_seen: 2026-07-05 20:40:03 EDT
--- runtime: 919
-
--- NOTES START
--- write your notes here
--- NOTES END
+-- runtime: 919ms
 
 # Write your MySQL query statement below
 Select e.name, b.bonus
