@@ -3,8 +3,6 @@
 -- difficulty: easy
 -- first_seen: 2026-07-05 20:40:01 EDT
 -- runtime: 462
---
--- Notes stored in leetcode_notes.json
 -- Notes:
 --
 
