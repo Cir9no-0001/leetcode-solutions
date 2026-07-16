@@ -102,6 +102,6 @@
     "notes": "Hint: case to add to immediate orders, subquery to filter for first orders, don't use CTE"
   },
   "trips-and-users": {
-    "notes": ""
+    "notes": "Hint: CTE and double inner join to filter banned users, case to sum cancels, and group by date"
   }
 }
