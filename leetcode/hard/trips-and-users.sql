@@ -4,7 +4,7 @@
 -- first_seen: 2026-07-15 22:32:48 EDT
 -- runtime: 493ms
 -- Notes:
---
+-- Hint: CTE and double inner join to filter banned users, case to sum cancels, and group by date
 
 
 with active as(
