@@ -103,5 +103,8 @@
   },
   "trips-and-users": {
     "notes": "Hint: CTE and double inner join to filter banned users, case to sum cancels, and group by date"
+  },
+  "monthly-transactions-i": {
+    "notes": ""
   }
 }
