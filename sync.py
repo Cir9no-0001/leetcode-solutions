@@ -412,6 +412,10 @@ Last updated: {stats["last_updated"]}
 - leetcode/easy/
 - leetcode/medium/
 - leetcode/hard/
+
+## Author's Note
+- The hints are the notes btw :>
+- Repo meant for SQL LeetCode questions until language recognition is implemented, did two sum by accident pls ignore for now!
 """
 
 with open("README.md", "w", encoding="utf-8") as f:
