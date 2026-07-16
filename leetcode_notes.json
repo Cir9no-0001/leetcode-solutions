@@ -100,5 +100,8 @@
   },
   "immediate-food-delivery-ii": {
     "notes": "Hint: case to add to immediate orders, subquery to filter for first orders, don't use CTE"
+  },
+  "trips-and-users": {
+    "notes": ""
   }
 }
