@@ -96,7 +96,7 @@
     "notes": ""
   },
   "last-person-to-fit-in-the-bus": {
-    "notes": ""
+    "notes": "Hint: CTE to track the running total, use order by and limit in the main query to retrieve the last person"
   },
   "immediate-food-delivery-ii": {
     "notes": "Hint: case to add to immediate orders, subquery to filter for first orders, don't use CTE"
