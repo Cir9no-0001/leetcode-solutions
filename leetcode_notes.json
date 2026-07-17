@@ -105,9 +105,9 @@
     "notes": "Hint: CTE and double inner join to filter banned users, case to sum cancels, and group by date"
   },
   "monthly-transactions-i": {
-    "notes": ""
+    "notes": "Hint: use date_format to get rid of the day portion of the date, repeat when multigrouping"
   },
   "queries-quality-and-percentage": {
-    "notes": ""
+    "notes": "Hint: pure math, don't forget to round"
   }
 }
