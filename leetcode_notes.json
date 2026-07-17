@@ -106,5 +106,8 @@
   },
   "monthly-transactions-i": {
     "notes": ""
+  },
+  "queries-quality-and-percentage": {
+    "notes": ""
   }
 }
