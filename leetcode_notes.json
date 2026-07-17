@@ -81,19 +81,19 @@
     "notes": ""
   },
   "exchange-seats": {
-    "notes": ""
+    "notes": "Hint: use case and modulo to change the IDs, then reorder the IDs, don't forget about the last odd seat"
   },
   "customers-who-bought-all-products": {
     "notes": "Hint: group by id, then use having and subquery counter"
   },
   "product-sales-analysis-iii": {
-    "notes": ""
+    "notes": "Hint: subquery to store the true values of min when a tie occurs"
   },
   "product-price-at-a-given-date": {
-    "notes": ""
+    "notes": "Hint: subquery to find the most recent pair of price and product ID, use union to make a default of 10 for unchanged prices before the date"
   },
   "market-analysis-i": {
-    "notes": ""
+    "notes": "Hint: use left join to keep people with 0 orders; filters should be after the on clause for easy"
   },
   "last-person-to-fit-in-the-bus": {
     "notes": "Hint: CTE to track the running total, use order by and limit in the main query to retrieve the last person"
@@ -105,7 +105,7 @@
     "notes": "Hint: CTE and double inner join to filter banned users, case to sum cancels, and group by date"
   },
   "monthly-transactions-i": {
-    "notes": "Hint: use date_format to get rid of the day portion of the date, repeat when multigrouping"
+    "notes": "Hint: use date_format to get rid of the day portion of the date; repeat when multigrouping"
   },
   "queries-quality-and-percentage": {
     "notes": "Hint: pure math, don't forget to round"
