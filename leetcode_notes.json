@@ -109,5 +109,8 @@
   },
   "queries-quality-and-percentage": {
     "notes": "Hint: pure math, don't forget to round"
+  },
+  "restaurant-growth": {
+    "notes": ""
   }
 }
