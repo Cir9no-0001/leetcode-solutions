@@ -115,5 +115,8 @@
   },
   "dna-pattern-recognition": {
     "notes": "Hint: use if, braindead question"
+  },
+  "count-salary-categories": {
+    "notes": ""
   }
 }
