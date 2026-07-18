@@ -4,7 +4,7 @@
 -- first_seen: 2026-07-18 10:33:02 EDT
 -- runtime: 334ms
 -- Notes:
---
+-- Hint: use a CTE to count the number of customers in the given time frame and find the daily sum of all customers for every day, main query to find moving sum and moving average, use offset to remove days with invalid windows
 
 
 with sorted as(
