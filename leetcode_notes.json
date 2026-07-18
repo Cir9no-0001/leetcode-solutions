@@ -117,6 +117,6 @@
     "notes": "Hint: use if, braindead question"
   },
   "count-salary-categories": {
-    "notes": ""
+    "notes": "Hint: every row is an individual query; use union"
   }
 }
