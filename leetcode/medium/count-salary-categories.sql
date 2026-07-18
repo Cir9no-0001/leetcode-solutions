@@ -4,7 +4,7 @@
 -- first_seen: 2026-07-18 15:01:07 EDT
 -- runtime: 1465ms
 -- Notes:
---
+-- Hint: every row is an individual query; use union
 
 
 select 'High Salary' as 'category', sum(if(a.income>50000, 1, 0)) as 'accounts_count'
