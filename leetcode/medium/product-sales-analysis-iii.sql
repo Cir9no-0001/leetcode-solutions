@@ -4,7 +4,7 @@
 -- first_seen: 2026-07-13 17:42:43 EDT
 -- runtime: 719ms
 -- Notes:
---
+-- Hint: subquery to store the true values of min when a tie occurs
 
 
 select s.product_id, s.year as 'first_year', s.quantity, s.price

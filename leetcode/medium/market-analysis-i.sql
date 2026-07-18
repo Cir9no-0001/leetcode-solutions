@@ -4,7 +4,7 @@
 -- first_seen: 2026-07-14 11:53:25 EDT
 -- runtime: 1287ms
 -- Notes:
---
+-- Hint: use left join to keep people with 0 orders; filters should be after the on clause for easy
 
 
 select 

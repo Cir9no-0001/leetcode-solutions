@@ -4,7 +4,7 @@
 -- first_seen: 2026-07-12 23:32:52 EDT
 -- runtime: 347ms
 -- Notes:
---
+-- Hint: use case and modulo to change the IDs, then reorder the IDs, don't forget about the last odd seat
 
 
 select 

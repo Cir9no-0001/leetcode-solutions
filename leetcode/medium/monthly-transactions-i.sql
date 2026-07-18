@@ -4,7 +4,7 @@
 -- first_seen: 2026-07-15 23:44:19 EDT
 -- runtime: 567ms
 -- Notes:
---
+-- Hint: use date_format to get rid of the day portion of the date; repeat when multigrouping
 
 
 select 

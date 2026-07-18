@@ -4,7 +4,7 @@
 -- first_seen: 2026-07-14 11:53:25 EDT
 -- runtime: 473ms
 -- Notes:
---
+-- Hint: subquery to find the most recent pair of price and product ID, use union to make a default of 10 for unchanged prices before the date
 
 
 select 

@@ -4,7 +4,7 @@
 -- first_seen: 2026-07-14 14:26:55 EDT
 -- runtime: 756ms
 -- Notes:
---
+-- Hint: CTE to track the running total, use order by and limit in the main query to retrieve the last person
 
 
 with temp as(

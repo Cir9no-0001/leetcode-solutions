@@ -4,7 +4,7 @@
 -- first_seen: 2026-07-16 23:54:21 EDT
 -- runtime: 380ms
 -- Notes:
---
+-- Hint: pure math, don't forget to round
 
 
 select
