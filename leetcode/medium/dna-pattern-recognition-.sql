@@ -4,7 +4,7 @@
 -- first_seen: 2026-07-18 10:56:06 EDT
 -- runtime: 288ms
 -- Notes:
---
+-- Hint: use if, braindead question
 
 select 
     s.sample_id,
