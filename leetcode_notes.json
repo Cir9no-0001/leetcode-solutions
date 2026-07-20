@@ -123,6 +123,6 @@
     "notes": "Hint: use date_format to get rid of the day from the date, and CTE to get the monthly total units per product_id"
   },
   "capital-gainloss": {
-    "notes": ""
+    "notes": "Hint: group the stocks, then use if depending on the operation"
   }
 }
