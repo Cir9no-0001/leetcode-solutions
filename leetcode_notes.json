@@ -121,5 +121,8 @@
   },
   "list-the-products-ordered-in-a-period": {
     "notes": "Hint: use date_format to get rid of the day from the date, and CTE to get the monthly total units per product_id"
+  },
+  "capital-gainloss": {
+    "notes": ""
   }
 }
