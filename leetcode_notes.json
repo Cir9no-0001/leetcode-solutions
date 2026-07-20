@@ -118,5 +118,8 @@
   },
   "count-salary-categories": {
     "notes": "Hint: every row is an individual query; use union"
+  },
+  "list-the-products-ordered-in-a-period": {
+    "notes": ""
   }
 }
