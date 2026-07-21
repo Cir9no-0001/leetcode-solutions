@@ -124,5 +124,8 @@
   },
   "capital-gainloss": {
     "notes": "Hint: group the stocks, then use if depending on the operation"
+  },
+  "replace-employee-id-with-the-unique-identifier": {
+    "notes": ""
   }
 }
