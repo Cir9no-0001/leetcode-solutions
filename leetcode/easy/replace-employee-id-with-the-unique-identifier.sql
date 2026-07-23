@@ -4,7 +4,7 @@
 -- first_seen: 2026-07-21 16:38:21 EDT
 -- runtime: 1248ms
 -- Notes:
---
+-- Hint: use left join. [O(E), 1 pass]
 
 
 select 

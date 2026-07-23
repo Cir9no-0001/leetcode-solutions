@@ -4,7 +4,7 @@
 -- first_seen: 2026-07-22 21:00:20 EDT
 -- runtime: 690ms
 -- Notes:
---
+-- Hint: Use left join and group by carefully to include missing IDs not in Confirmations; otherwise, it's simple math. Also, use avg for one pass. [TC: O(S + C), 1 pass]
 
 
 select 
