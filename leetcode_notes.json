@@ -126,12 +126,12 @@
     "notes": "Hint: group the stocks, then use if depending on the operation"
   },
   "replace-employee-id-with-the-unique-identifier": {
-    "notes": ""
+    "notes": "Hint: use left join. [O(E), 1 pass]"
   },
   "movie-rating": {
-    "notes": ""
+    "notes": "Hint: split the query into two and merge using union all, order by has two variables to consider and lexicographically smaller means name/title asc. [TC: O(R1 + R2log M), 2 passes]"
   },
   "confirmation-rate": {
-    "notes": ""
+    "notes": "Hint: Use left join and group by carefully to include missing IDs not in Confirmations; otherwise, it's simple math. Also, use avg for one pass. [TC: O(S + C), 1 pass]"
   }
 }
