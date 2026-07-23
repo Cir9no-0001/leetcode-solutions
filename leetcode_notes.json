@@ -1,6 +1,6 @@
 {
   "product-sales-analysis-i": {
-    "notes": ""
+    "notes": "Hint: use inner join. [O(S), 1 pass]"
   },
   "investments-in-2016": {
     "notes": "Hint: use CTE, concat subquery for location, use exclusive logic using count and group"
